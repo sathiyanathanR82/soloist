@@ -1,5 +1,5 @@
 .navbar {
-  background: white;
+  background: rgba(0, 0, 0, 0.75);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   height: 60px;
   position: sticky;
@@ -16,7 +16,7 @@
   .navbar-brand {
     h1 {
       margin: 0;
-      color: #1877f2;
+      color: #fff;
       font-size: 24px;
       font-weight: 700;
     }

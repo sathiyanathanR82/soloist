@@ -30,7 +30,7 @@
               type="text"
               id="userId"
               formControlName="userId"
-              disabled
+              [disabled]="registrationForm.invalid"
               class="input-disabled">
             <small class="hint">Unique identifier for your account</small>
           </div>
@@ -41,7 +41,7 @@
               type="email"
               id="email"
               formControlName="email"
-              disabled
+              [disabled]="registrationForm.invalid"
               class="input-disabled">
             <small class="hint">Your registered email address</small>
           </div>

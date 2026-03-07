@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { TermsModalComponent } from '../terms-modal/terms-modal.component';
 
 @Component({
   selector: 'app-registration',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, TermsModalComponent],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
