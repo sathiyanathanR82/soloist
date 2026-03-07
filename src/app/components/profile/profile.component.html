@@ -1,0 +1,319 @@
+<div class="profile-container">
+  <!-- Header Section -->
+  <div class="profile-header">
+    <div class="header-background"></div>
+    <div class="container">
+      <div class="profile-info">
+        <div class="avatar">
+          <div class="avatar-placeholder">
+            {{ currentUser?.firstName?.charAt(0) || '' }}{{ currentUser?.lastName?.charAt(0) || '' }}
+          </div>
+        </div>
+
+        <div class="user-details">
+          <h1>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h1>
+          @if (currentUser?.headline) {
+            <p class="headline">
+              {{ currentUser.headline }}
+            </p>
+          }
+          @if (currentUser?.location) {
+            <p class="location">
+              📍 {{ currentUser.location }}
+            </p>
+          }
+
+          <div class="profile-stats">
+            <div class="stat">
+              <span class="stat-label">Member Since</span>
+              <span class="stat-value">{{ formatDate(currentUser?.createdAt) }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Profile Completion</span>
+              <span class="stat-value">{{ getProfileCompletion() }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="user-actions">
+          @if (!editMode) {
+            <button
+              class="btn btn-primary"
+              (click)="toggleEditMode()">
+              ✏️ Edit Profile
+            </button>
+          }
+          @if (editMode) {
+            <button
+              class="btn btn-secondary"
+              (click)="cancelEdit()">
+              Cancel
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  @if (successMessage || errorMessage) {
+    <div class="container alerts">
+      @if (successMessage) {
+        <div class="alert alert-success">
+          {{ successMessage }}
+        </div>
+      }
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Profile Content -->
+  <div class="container profile-content">
+    <!-- View Mode -->
+    @if (!editMode) {
+      <div class="profile-sections">
+        <!-- Account Information -->
+        <section class="profile-section">
+          <h2>Account Information</h2>
+          <div class="section-content">
+            <div class="info-row">
+              <span class="label">User ID:</span>
+              <span class="value">{{ currentUser?.id }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Email Address:</span>
+              <span class="value">{{ currentUser?.email }}</span>
+            </div>
+            @if (currentUser?.createdAt) {
+              <div class="info-row">
+                <span class="label">Account Created:</span>
+                <span class="value">{{ formatDate(currentUser.createdAt) }}</span>
+              </div>
+            }
+        </div>
+      </section>
+
+      <!-- Personal Information -->
+      <section class="profile-section">
+        <h2>Personal Information</h2>
+        <div class="section-content">
+          <div class="info-row">
+            <span class="label">First Name:</span>
+            <span class="value">{{ currentUser?.firstName || 'Not provided' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Last Name:</span>
+            <span class="value">{{ currentUser?.lastName || 'Not provided' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Date of Birth:</span>
+            <span class="value">{{ formatDate(currentUser?.dateOfBirth) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Gender:</span>
+            <span class="value">{{ currentUser?.gender || 'Not provided' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Phone Number:</span>
+            <span class="value">{{ currentUser?.phone || 'Not provided' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Professional Information -->
+      <section class="profile-section">
+        <h2>Professional Information</h2>
+        <div class="section-content">
+          <div class="info-row">
+            <span class="label">Location:</span>
+            <span class="value">{{ currentUser?.location || 'Not provided' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Headline:</span>
+            <span class="value">{{ currentUser?.headline || 'Not provided' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Website:</span>
+            @if (currentUser?.website) {
+              <span class="value">
+                <a [href]="currentUser.website" target="_blank">{{ currentUser.website }}</a>
+              </span>
+            }
+            @if (!currentUser?.website) {
+              <span class="value">Not provided</span>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Bio Section -->
+      @if (currentUser?.bio) {
+        <section class="profile-section">
+          <h2>About</h2>
+          <div class="section-content">
+            <p class="bio-text">{{ currentUser.bio }}</p>
+          </div>
+        </section>
+      }
+    }
+
+    <!-- Edit Mode -->
+    @if (editMode) {
+      <div class="edit-form-section">
+        <h2>Edit Your Profile</h2>
+
+        <form [formGroup]="editForm" (ngSubmit)="saveChanges()" class="edit-form">
+          <!-- Personal Information -->
+          <div class="form-section">
+            <h3>Personal Information</h3>
+
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  formControlName="firstName"
+                  class="form-input">
+                @if (getFieldError('firstName')) {
+                  <small class="error">
+                    {{ getFieldError('firstName') }}
+                  </small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  formControlName="lastName"
+                  class="form-input">
+                @if (getFieldError('lastName')) {
+                  <small class="error">
+                    {{ getFieldError('lastName') }}
+                  </small>
+                }
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label for="dateOfBirth">Date of Birth</label>
+                <input
+                  type="date"
+                  id="dateOfBirth"
+                  formControlName="dateOfBirth"
+                  class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender" formControlName="gender" class="form-input">
+                  <option value="">Select your gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                  <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row form-row-2">
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  formControlName="phone"
+                  class="form-input">
+                @if (getFieldError('phone')) {
+                  <small class="error">
+                    {{ getFieldError('phone') }}
+                  </small>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="location">Location</label>
+                <input
+                  type="text"
+                  id="location"
+                  formControlName="location"
+                  class="form-input">
+              </div>
+            </div>
+          </div>
+
+          <!-- Professional Information -->
+          <div class="form-section">
+            <h3>Professional Information</h3>
+
+            <div class="form-group">
+              <label for="headline">Professional Headline</label>
+              <input
+                type="text"
+                id="headline"
+                formControlName="headline"
+                class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Bio</label>
+              <textarea
+                id="bio"
+                formControlName="bio"
+                rows="4"
+                class="form-input"></textarea>
+              <small class="hint">
+                {{ (editForm.get('bio')?.value || '').length }}/500 characters
+              </small>
+              @if (getFieldError('bio')) {
+                <small class="error">
+                  {{ getFieldError('bio') }}
+                </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="website">Website URL</label>
+              <input
+                type="text"
+                id="website"
+                formControlName="website"
+                class="form-input">
+              <small class="hint">Optional: Your personal website or portfolio</small>
+              @if (getFieldError('website')) {
+                <small class="error">
+                  {{ getFieldError('website') }}
+                </small>
+              }
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="editForm.invalid || isLoading">
+              @if (!isLoading) {
+                <span>Save Changes</span>
+              }
+              @if (isLoading) {
+                <span>Saving...</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+  </div>
+</div>
