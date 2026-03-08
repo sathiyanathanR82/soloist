@@ -1,0 +1,39 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="login-header">
+      <h1>Welcome to Soloist</h1>
+      <p>Connect with your social account</p>
+    </div>
+
+    <div class="login-content">
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <div class="social-buttons">
+        @for (provider of socialProviders; track provider) {
+          <button
+            [ngClass]="provider.className"
+            class="social-btn"
+            (click)="loginWithSocial(provider.name)"
+            [disabled]="isLoading"
+            [style.--provider-color]="provider.color">
+          <span class="icon">{{ provider.icon }}</span>
+          @if (!isLoading) {
+            <span class="text">Continue with {{ provider.name }}</span>
+          }
+          @if (isLoading) {
+            <span class="text loading">Authenticating...</span>
+          }
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="login-footer">
+      <p>By logging in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
+    </div>
+  </div>
+</div>
