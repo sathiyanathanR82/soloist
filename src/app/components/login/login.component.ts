@@ -50,40 +50,21 @@ export class LoginComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
-    // Check if already logged in
+    // If already logged in, skip straight to registration
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/registration']);
     }
   }
 
+  /**
+   * Redirects the browser to the backend OAuth endpoint.
+   * The OAuth flow happens server-side; on success the backend
+   * redirects back to /profile?token=<jwt>.
+   */
   loginWithSocial(provider: string): void {
     this.isLoading = true;
     this.errorMessage = '';
-
-    // Mock social login data
-    const mockData = {
-      email: `user.${provider.toLowerCase()}@example.com`,
-      firstName: 'John',
-      lastName: provider,
-      profilePhoto: `https://ui-avatars.com/api/?name=John+${provider}&background=random`
-    };
-
-    this.authService.loginWithSocial(provider, mockData).subscribe({
-      next: (response) => {
-        if (response.success) {
-          setTimeout(() => {
-            this.router.navigate(['/registration']);
-          }, 500);
-        }
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = 'Login failed. Please try again.';
-        console.error('Login error:', error);
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
+    // No return — browser navigates away entirely
+    this.authService.loginWithSocial(provider);
   }
 }

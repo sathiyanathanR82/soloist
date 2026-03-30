@@ -21,6 +21,8 @@ export class RegistrationComponent implements OnInit {
   successMessage = '';
   showTermsModal = false;
   agreedToTerms = false;
+  previewPhoto: string | null = null;
+  selectedPhotoFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -29,14 +31,31 @@ export class RegistrationComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Check if user is authenticated
-    if (!this.authService.isAuthenticated()) {
+    // Must be authenticated (token present) to reach this page
+    if (!this.authService.getToken()) {
       this.router.navigate(['/login']);
       return;
     }
 
     this.currentUser = this.authService.getCurrentUser();
-    this.initializeForm();
+
+    // If user data isn't cached yet, fetch it first
+    if (!this.currentUser) {
+      this.isLoading = true;
+      this.authService.fetchCurrentUser().subscribe({
+        next: (user) => {
+          this.currentUser = user;
+          this.initializeForm();
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.router.navigate(['/login']);
+        }
+      });
+    } else {
+      this.initializeForm();
+    }
   }
 
   initializeForm(): void {
@@ -97,6 +116,7 @@ export class RegistrationComponent implements OnInit {
 
     const formData = this.registrationForm.getRawValue();
     delete formData.agreedToTerms;
+    delete formData.userId; // not needed in the PUT body
 
     this.authService.registerUser(formData).subscribe({
       next: (response) => {
@@ -111,7 +131,7 @@ export class RegistrationComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = 'An error occurred during registration. Please try again.';
+        this.errorMessage = error.message || 'An error occurred during registration. Please try again.';
         console.error('Registration error:', error);
       },
       complete: () => {
@@ -125,7 +145,21 @@ export class RegistrationComponent implements OnInit {
     this.agreedToTerms = false;
     this.errorMessage = '';
     this.successMessage = '';
+    this.previewPhoto = null;
+    this.selectedPhotoFile = null;
     this.initializeForm();
+  }
+
+  onPhotoSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedPhotoFile = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.previewPhoto = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   getFieldError(fieldName: string): string {

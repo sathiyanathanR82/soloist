@@ -5,18 +5,38 @@
       <p>Please review and complete your profile information</p>
     </div>
 
+    <div class="profile-photo-container">
+      <div class="photo-wrapper">
+        @if (previewPhoto || currentUser?.profilePhoto) {
+          <img [src]="previewPhoto || currentUser?.profilePhoto" alt="Profile Photo" class="profile-photo"
+            title="Your profile picture from login">
+        } @else {
+          <div class="profile-photo-placeholder">
+            <span>{{ (currentUser?.firstName?.[0] || '') + (currentUser?.lastName?.[0] || '') }}</span>
+          </div>
+        }
+        
+        <button type="button" class="edit-photo-btn" (click)="fileInput.click()" title="Update profile picture">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+          </svg>
+        </button>
+        <input type="file" #fileInput (change)="onPhotoSelected($event)" accept="image/*" class="hidden-file-input" style="display: none;">
+      </div>
+    </div>
+
     <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="registration-form">
       <!-- Messages -->
       @if (errorMessage) {
-        <div class="alert alert-error">
-          {{ errorMessage }}
-        </div>
+      <div class="alert alert-error">
+        {{ errorMessage }}
+      </div>
       }
 
       @if (successMessage) {
-        <div class="alert alert-success">
-          {{ successMessage }}
-        </div>
+      <div class="alert alert-success">
+        {{ successMessage }}
+      </div>
       }
 
       <!-- Read-only Fields Section -->
@@ -26,23 +46,13 @@
         <div class="form-row form-row-2">
           <div class="form-group">
             <label for="userId">User ID</label>
-            <input
-              type="text"
-              id="userId"
-              formControlName="userId"
-              [disabled]="registrationForm.invalid"
-              class="input-disabled">
+            <input type="text" id="userId" formControlName="userId" class="input-disabled">
             <small class="hint">Unique identifier for your account</small>
           </div>
 
           <div class="form-group">
             <label for="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              formControlName="email"
-              [disabled]="registrationForm.invalid"
-              class="input-disabled">
+            <input type="email" id="email" formControlName="email" class="input-disabled">
             <small class="hint">Your registered email address</small>
           </div>
         </div>
@@ -55,31 +65,23 @@
         <div class="form-row form-row-2">
           <div class="form-group">
             <label for="firstName">First Name <span class="required">*</span></label>
-            <input
-              type="text"
-              id="firstName"
-              formControlName="firstName"
-              placeholder="Enter your first name"
+            <input type="text" id="firstName" formControlName="firstName" placeholder="Enter your first name"
               class="form-input">
             @if (getFieldError('firstName')) {
-              <small class="error">
-                {{ getFieldError('firstName') }}
-              </small>
+            <small class="error">
+              {{ getFieldError('firstName') }}
+            </small>
             }
           </div>
 
           <div class="form-group">
             <label for="lastName">Last Name <span class="required">*</span></label>
-            <input
-              type="text"
-              id="lastName"
-              formControlName="lastName"
-              placeholder="Enter your last name"
+            <input type="text" id="lastName" formControlName="lastName" placeholder="Enter your last name"
               class="form-input">
             @if (getFieldError('lastName')) {
-              <small class="error">
-                {{ getFieldError('lastName') }}
-              </small>
+            <small class="error">
+              {{ getFieldError('lastName') }}
+            </small>
             }
           </div>
         </div>
@@ -87,15 +89,11 @@
         <div class="form-row form-row-2">
           <div class="form-group">
             <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              formControlName="dateOfBirth"
-              class="form-input">
+            <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-input">
             @if (getFieldError('dateOfBirth')) {
-              <small class="error">
-                {{ getFieldError('dateOfBirth') }}
-              </small>
+            <small class="error">
+              {{ getFieldError('dateOfBirth') }}
+            </small>
             }
           </div>
 
@@ -109,9 +107,9 @@
               <option value="Prefer not to say">Prefer not to say</option>
             </select>
             @if (getFieldError('gender')) {
-              <small class="error">
-                {{ getFieldError('gender') }}
-              </small>
+            <small class="error">
+              {{ getFieldError('gender') }}
+            </small>
             }
           </div>
         </div>
@@ -119,72 +117,51 @@
         <div class="form-row form-row-2">
           <div class="form-group">
             <label for="phone">Phone Number</label>
-            <input
-              type="tel"
-              id="phone"
-              formControlName="phone"
-              placeholder="Enter your phone number"
+            <input type="tel" id="phone" formControlName="phone" placeholder="Enter your phone number"
               class="form-input">
             @if (getFieldError('phone')) {
-              <small class="error">
-                {{ getFieldError('phone') }}
-              </small>
+            <small class="error">
+              {{ getFieldError('phone') }}
+            </small>
             }
           </div>
 
           <div class="form-group">
             <label for="location">Location</label>
-            <input
-              type="text"
-              id="location"
-              formControlName="location"
-              placeholder="City, Country"
-              class="form-input">
+            <input type="text" id="location" formControlName="location" placeholder="City, Country" class="form-input">
           </div>
         </div>
 
         <div class="form-group">
           <label for="headline">Professional Headline</label>
-          <input
-            type="text"
-            id="headline"
-            formControlName="headline"
-            placeholder="e.g., Software Engineer at Tech Company"
-            class="form-input">
+          <input type="text" id="headline" formControlName="headline"
+            placeholder="e.g., Software Engineer at Tech Company" class="form-input">
           <small class="hint">Brief description of your professional role</small>
         </div>
 
         <div class="form-group">
           <label for="bio">Bio</label>
-          <textarea
-            id="bio"
-            formControlName="bio"
-            placeholder="Tell us about yourself..."
-            rows="4"
+          <textarea id="bio" formControlName="bio" placeholder="Tell us about yourself..." rows="4"
             class="form-input"></textarea>
           <small class="hint">
             {{ (registrationForm.get('bio')?.value || '').length }}/500 characters
           </small>
           @if (getFieldError('bio')) {
-            <small class="error">
-              {{ getFieldError('bio') }}
-            </small>
+          <small class="error">
+            {{ getFieldError('bio') }}
+          </small>
           }
         </div>
 
         <div class="form-group">
           <label for="website">Website URL</label>
-          <input
-            type="text"
-            id="website"
-            formControlName="website"
-            placeholder="https://yourwebsite.com"
+          <input type="text" id="website" formControlName="website" placeholder="https://yourwebsite.com"
             class="form-input">
           <small class="hint">Optional: Your personal website or portfolio</small>
           @if (getFieldError('website')) {
-            <small class="error">
-              {{ getFieldError('website') }}
-            </small>
+          <small class="error">
+            {{ getFieldError('website') }}
+          </small>
           }
         </div>
       </div>
@@ -192,11 +169,7 @@
       <!-- Terms and Conditions Section -->
       <div class="form-section terms-section">
         <div class="checkbox-group">
-          <input
-            type="checkbox"
-            id="agreedToTerms"
-            [checked]="agreedToTerms"
-            (change)="toggleTermsCheckbox()"
+          <input type="checkbox" id="agreedToTerms" [checked]="agreedToTerms" (change)="toggleTermsCheckbox()"
             class="checkbox-input">
           <label for="agreedToTerms" class="checkbox-label">
             I agree to the
@@ -207,9 +180,9 @@
           </label>
         </div>
         @if (registrationForm.get('agreedToTerms')?.touched && !registrationForm.get('agreedToTerms')?.value) {
-          <small class="error">
-            You must agree to the Terms and Conditions
-          </small>
+        <small class="error">
+          You must agree to the Terms and Conditions
+        </small>
         }
       </div>
 
@@ -218,15 +191,12 @@
         <button type="button" class="btn btn-secondary" (click)="resetForm()" [disabled]="isSubmitting">
           Clear Form
         </button>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          [disabled]="registrationForm.invalid || isSubmitting">
+        <button type="submit" class="btn btn-primary" [disabled]="registrationForm.invalid || isSubmitting">
           @if (!isSubmitting) {
-            <span>Complete Registration</span>
+          <span>Complete Registration</span>
           }
           @if (isSubmitting) {
-            <span>Registering...</span>
+          <span>Registering...</span>
           }
         </button>
       </div>
@@ -236,8 +206,6 @@
 
 <!-- Terms Modal -->
 @if (showTermsModal) {
-  <app-terms-modal
-    (onClose)="closeTermsModal()"
-    (onAgree)="agreeToTerms()">
-  </app-terms-modal>
+<app-terms-modal (onClose)="closeTermsModal()" (onAgree)="agreeToTerms()">
+</app-terms-modal>
 }

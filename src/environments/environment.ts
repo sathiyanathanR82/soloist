@@ -6,7 +6,7 @@
 // Replace with your environment configuration
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
+  apiUrl: 'http://localhost:10000/api',
   socialProviders: {
     facebook: {
       appId: 'YOUR_FACEBOOK_APP_ID',

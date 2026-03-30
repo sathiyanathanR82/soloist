@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -22,10 +22,35 @@ export class ProfileComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
+    // Handle OAuth redirect: reads ?token= from URL, fetches real user
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasToken = urlParams.has('token');
+    const isNewUser = urlParams.get('isNewUser') === 'true';
+
+    if (hasToken) {
+      this.isLoading = true;
+      this.authService.handleAuthCallback().subscribe({
+        next: (user) => {
+          this.currentUser = user;
+          this.initializeEditForm();
+          this.isLoading = false;
+          // Unconditionally route to registration per user request
+          this.router.navigate(['/registration']);
+        },
+        error: () => {
+          this.isLoading = false;
+          this.router.navigate(['/login']);
+        }
+      });
+      return;
+    }
+
+    // Normal page load: check if already authenticated
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/login']);
       return;
@@ -33,6 +58,7 @@ export class ProfileComponent implements OnInit {
 
     this.currentUser = this.authService.getCurrentUser();
 
+    // Subscribe to live user updates
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       if (this.editMode) {
@@ -40,7 +66,23 @@ export class ProfileComponent implements OnInit {
       }
     });
 
-    this.initializeEditForm();
+    // If no user in memory yet, fetch from backend
+    if (!this.currentUser) {
+      this.isLoading = true;
+      this.authService.fetchCurrentUser().subscribe({
+        next: (user) => {
+          this.currentUser = user;
+          this.initializeEditForm();
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.router.navigate(['/login']);
+        }
+      });
+    } else {
+      this.initializeEditForm();
+    }
   }
 
   initializeEditForm(): void {
@@ -89,7 +131,7 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = 'An error occurred while updating your profile.';
+        this.errorMessage = error.message || 'An error occurred while updating your profile.';
         console.error('Update error:', error);
       },
       complete: () => {
@@ -102,6 +144,10 @@ export class ProfileComponent implements OnInit {
     this.editMode = false;
     this.initializeEditForm();
     this.errorMessage = '';
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   getFieldError(fieldName: string): string {
