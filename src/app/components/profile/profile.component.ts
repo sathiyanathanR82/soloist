@@ -16,8 +16,11 @@ export class ProfileComponent implements OnInit {
   editMode = false;
   editForm!: FormGroup;
   isLoading = false;
+  isSaving = false;
   successMessage = '';
   errorMessage = '';
+  previewPhoto: string | null = null;
+  selectedPhotoFile: File | null = null;
 
   constructor(
     private authService: AuthService,
@@ -36,11 +39,16 @@ export class ProfileComponent implements OnInit {
       this.isLoading = true;
       this.authService.handleAuthCallback().subscribe({
         next: (user) => {
-          this.currentUser = user;
+          const userData = user?.data || user;
+          this.currentUser = userData;
           this.initializeEditForm();
           this.isLoading = false;
-          // Unconditionally route to registration per user request
-          this.router.navigate(['/registration']);
+          // Redirect based on registration status
+          if (userData.registerUser === true) {
+            this.router.navigate(['/home']);
+          } else {
+            this.router.navigate(['/registration']);
+          }
         },
         error: () => {
           this.isLoading = false;
@@ -56,12 +64,15 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
-    this.currentUser = this.authService.getCurrentUser();
+    const memUser = this.authService.getCurrentUser();
+    this.currentUser = memUser?.data || memUser;
 
     // Subscribe to live user updates
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      if (this.editMode) {
+      // Only re-initialize if we are NOT currently in the middle of a save operation
+      // to prevent synchronous infinite loops/redundant form resets.
+      if (this.editMode && !this.isSaving) {
         this.initializeEditForm();
       }
     });
@@ -71,7 +82,7 @@ export class ProfileComponent implements OnInit {
       this.isLoading = true;
       this.authService.fetchCurrentUser().subscribe({
         next: (user) => {
-          this.currentUser = user;
+          this.currentUser = user?.data || user;
           this.initializeEditForm();
           this.isLoading = false;
         },
@@ -94,7 +105,7 @@ export class ProfileComponent implements OnInit {
       headline: [this.currentUser?.headline || ''],
       bio: [this.currentUser?.bio || '', Validators.maxLength(500)],
       website: [this.currentUser?.website || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]],
-      dateOfBirth: [this.currentUser?.dateOfBirth || ''],
+      dateOfBirth: [this.formatDateForInput(this.currentUser?.dateOfBirth) || '', [Validators.required]],
       gender: [this.currentUser?.gender || '']
     });
   }
@@ -114,14 +125,25 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isLoading = true;
+    this.isSaving = true;
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.authService.updateUserProfile(this.editForm.value).subscribe({
+    const updatedData = { ...this.editForm.value };
+    
+    // Include profile photo if updated
+    if (this.previewPhoto) {
+      updatedData.profilePic = this.previewPhoto;
+    }
+
+    this.authService.updateUserProfile(updatedData).subscribe({
       next: (response) => {
         if (response.success) {
           this.successMessage = 'Profile updated successfully!';
           this.editMode = false;
+          this.previewPhoto = null;
+          this.selectedPhotoFile = null;
+          
           setTimeout(() => {
             this.successMessage = '';
           }, 3000);
@@ -131,13 +153,27 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         this.isLoading = false;
+        this.isSaving = false;
         this.errorMessage = error.message || 'An error occurred while updating your profile.';
         console.error('Update error:', error);
       },
       complete: () => {
         this.isLoading = false;
+        this.isSaving = false;
       }
     });
+  }
+
+  onPhotoSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedPhotoFile = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.previewPhoto = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   cancelEdit(): void {
@@ -178,6 +214,16 @@ export class ProfileComponent implements OnInit {
     return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
+  formatDateForInput(date: string | Date | undefined): string {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   getProfileCompletion(): number {
     if (!this.currentUser) return 0;
 
@@ -192,5 +238,19 @@ export class ProfileComponent implements OnInit {
     }).length;
 
     return Math.round((filledFields / fields.length) * 100);
+  }
+
+  getInitials(): string {
+    if (this.currentUser) {
+      return (this.currentUser.firstName?.[0] || '') + (this.currentUser.lastName?.[0] || '');
+    }
+    return '';
+  }
+
+  public capitalizeFirstLetter(string: string | undefined): string {
+    // Check if the string is empty or null for safety (optional chaining `?.` is a modern alternative)
+    if (!string) return "";
+
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 }

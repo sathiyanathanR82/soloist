@@ -27,7 +27,7 @@ You should see the Soloist login page with social login buttons.
 ## 📱 Testing the Application
 
 ### Step 1: Login with Social Provider
-1. Click any social provider button (Facebook, LinkedIn, Gmail, Yahoo, or Microsoft)
+1. Click any social provider button (Facebook, Gmail, Yahoo, or Microsoft)
 2. The app will simulate a social login
 3. You'll see a loading animation
 4. You'll be redirected to the registration page
@@ -76,7 +76,7 @@ You should see the Soloist login page with social login buttons.
 ## 📂 File Structure Overview
 
 ### Components
-- **login**: Social login page with 5 provider buttons
+- **login**: Social login page with 4 provider buttons
 - **registration**: Registration form with validation
 - **profile**: User profile page with edit capability
 - **terms-modal**: Terms and conditions popup

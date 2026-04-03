@@ -15,9 +15,6 @@ export const environment = {
     google: {
       clientId: 'YOUR_GOOGLE_CLIENT_ID'
     },
-    linkedin: {
-      clientId: 'YOUR_LINKEDIN_CLIENT_ID'
-    },
     microsoft: {
       clientId: 'YOUR_MICROSOFT_CLIENT_ID',
       authority: 'https://login.microsoftonline.com/common'

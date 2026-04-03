@@ -1,7 +1,7 @@
 {
   "name": "soloist",
   "version": "1.0.0",
-  "description": "A modern Angular application built with social authentication (Facebook, LinkedIn, Gmail, Yahoo, Microsoft), comprehensive registration form, and user profile management - similar to Facebook and LinkedIn.",
+  "description": "A modern Angular application built with social authentication (Facebook, Gmail, Yahoo, Microsoft), comprehensive registration form, and user profile management - similar to Facebook.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

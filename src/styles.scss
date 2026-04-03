@@ -1,3 +1,39 @@
+:root {
+  --primary-color: #667eea;
+  --secondary-color: #764ba2;
+  --bg-color: #f0f2f5;
+  --surface-color: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-accent: #667eea;
+  --border-color: #e5e7eb;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --input-focus: #667eea;
+  --alert-error-bg: #fee5e5;
+  --alert-error-text: #d32f2f;
+  --alert-success-bg: #e8f5e9;
+  --alert-success-text: #2e7d32;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #0f172a;
+    --surface-color: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-accent: #818cf8;
+    --border-color: #334155;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --input-bg: #0f172a;
+    --input-focus: #818cf8;
+    --alert-error-bg: #450a0a;
+    --alert-error-text: #fca5a5;
+    --alert-success-bg: #064e3b;
+    --alert-success-text: #6ee7b7;
+  }
+}
+
 /* Global Styles */
 * {
   margin: 0;
@@ -12,7 +48,9 @@ html, body {
     'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f0f2f5;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -28,16 +66,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--bg-color);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--text-secondary);
 }
 
 /* Common Button Styles */
@@ -47,26 +85,30 @@ button {
   border-radius: 6px;
   font-weight: 600;
   transition: all 0.3s ease;
+  background-color: var(--primary-color);
+  color: #ffffff;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 /* Form Styles */
 input, textarea {
-  border: 1px solid #ccc;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 8px 12px;
   font-family: inherit;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 input:focus, textarea:focus {
   outline: none;
-  border-color: #1877f2;
-  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.1);
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px var(--shadow-color);
 }
 
 /* Checkbox Styles */
@@ -74,6 +116,7 @@ input[type="checkbox"] {
   cursor: pointer;
   width: 18px;
   height: 18px;
+  accent-color: var(--primary-color);
 }
 
 /* Container */

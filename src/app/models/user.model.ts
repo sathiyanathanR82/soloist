@@ -7,10 +7,13 @@ export interface SocialLoginProvider {
 }
 
 export interface User {
-  id: string;
+  data?: any;
+  id?: string;
+  uid?: string;
   email: string;
   firstName: string;
   lastName: string;
+  profilePic?: string;
   profilePhoto?: string;
   headline?: string;
   bio?: string;
@@ -19,8 +22,10 @@ export interface User {
   dateOfBirth?: string;
   gender?: string;
   website?: string;
-  linkedinProfile?: string;
   facebookProfile?: string;
+  registerUser?: boolean;
+  latitude?: number;
+  longitude?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -43,5 +48,6 @@ export interface AuthResponse {
   success: boolean;
   message: string;
   user?: User;
+  data?: any;
   token?: string;
 }

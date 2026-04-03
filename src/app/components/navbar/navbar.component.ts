@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { delay } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -23,19 +24,11 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
   ]
 })
 export class NavbarComponent {
-  isAuthenticated = false;
-  currentUser: any = null;
   showUserMenu = false;
+  isAuthenticated$ = this.authService.isAuthenticated$.pipe(delay(0));
+  currentUser$ = this.authService.currentUser$.pipe(delay(0));
 
-  constructor(private authService: AuthService, private router: Router) {
-    this.authService.isAuthenticated$.subscribe(isAuth => {
-      this.isAuthenticated = isAuth;
-    });
-
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-    });
-  }
+  constructor(private authService: AuthService, private router: Router) {}
 
   toggleUserMenu(): void {
     this.showUserMenu = !this.showUserMenu;
@@ -46,15 +39,22 @@ export class NavbarComponent {
     this.showUserMenu = false;
   }
 
+  goToHome(): void {
+    this.router.navigate(['/home']);
+    this.showUserMenu = false;
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
     this.showUserMenu = false;
   }
 
-  getInitials(): string {
-    if (this.currentUser) {
-      return (this.currentUser.firstName?.[0] || '') + (this.currentUser.lastName?.[0] || '');
+  getInitials(user: any): string {
+    if (user) {
+      const first = user.firstName?.[0] || '';
+      const last = user.lastName?.[0] || '';
+      return (first + last).toUpperCase();
     }
     return '';
   }

@@ -1,29 +1,39 @@
 <nav class="navbar">
   <div class="container navbar-container">
-    <div class="navbar-brand">
-      <h1>Soloist</h1>
+    <div class="navbar-brand position-relative h-100">
+      <img src="assets/images/soloist_h.png" alt="Soloist" class="nav-logo">
+      <!-- <h1>Soloist</h1> -->
     </div>
 
-    @if (isAuthenticated) {
-      <div class="navbar-menu">
-        <div class="user-menu">
-          <button class="user-avatar" (click)="toggleUserMenu()">
-            <span class="avatar-text">{{ getInitials() }}</span>
+    @if (isAuthenticated$ | async) {
+    <div class="navbar-menu">
+      <div class="user-menu">
+        @if (currentUser$ | async; as user) {
+          <button class="user-avatar nobtnhovermove" (click)="toggleUserMenu()">
+            @if(user?.profilePic){
+            <img [src]="user?.profilePic" alt="Profile Photo" class="profile-photo">
+            } @else {
+            <span class="avatar-text">{{ getInitials(user) }}</span>
+            }
           </button>
 
           @if (showUserMenu) {
             <div class="dropdown-menu" [@fadeInOut]>
-          <button (click)="goToProfile()" class="menu-item">
-            <span>👤 My Profile</span>
-          </button>
-          <hr>
-            <button (click)="logout()" class="menu-item logout">
+              <button (click)="goToHome()" class="menu-item nobtnhovermove">
+                <span>🏠 Home</span>
+              </button>
+              <button (click)="goToProfile()" class="menu-item nobtnhovermove">
+                <span>👤 My Profile</span>
+              </button>
+            <hr>
+            <button (click)="logout()" class="menu-item logout nobtnhovermove">
               <span>🚪 Logout</span>
             </button>
           </div>
           }
-        </div>
+        }
       </div>
+    </div>
     }
   </div>
 </nav>

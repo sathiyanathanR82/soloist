@@ -3,6 +3,16 @@
   min-height: calc(100vh - 60px);
 }
 
+.profile-photo {
+  width: 143px;
+  height: 143px;
+  border-radius: 50%;
+  object-fit: cover;
+  // border: 2px solid white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  background-color: white;
+}
+
 .profile-header {
   background: white;
   position: relative;
@@ -50,7 +60,7 @@
       margin-bottom: 20px;
 
       h1 {
-        margin: 0 0 8px 0;
+        margin: 0 0 2px 0;
         font-size: 32px;
         color: #1a1a1a;
       }
@@ -64,7 +74,7 @@
 
       .location {
         margin: 0 0 20px 0;
-        color: #666;
+        color: #000;
         font-size: 16px;
       }
 
@@ -394,6 +404,7 @@
   }
 
   .profile-content {
+
     .profile-section,
     .edit-form-section {
       padding: 16px;

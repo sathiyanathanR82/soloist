@@ -71,7 +71,7 @@ You should see the Soloist login page with social provider buttons.
    - Auto-redirects to registration page after 1.5 seconds
 
 2. **Try Other Providers**
-   - Click LinkedIn, Gmail, Yahoo, or Microsoft
+   - Click Gmail, Yahoo, or Microsoft
    - Each shows a different email prefix
 
 ### Test Scenario 2: Complete Registration
@@ -294,13 +294,6 @@ To use real social login:
 const fbAppId = 'YOUR_FACEBOOK_APP_ID';
 ```
 
-### LinkedIn
-
-1. Go to https://www.linkedin.com/developers/
-2. Create application
-3. Get Client ID
-4. Get Client Secret
-5. Configure in service
 
 ### Google/Gmail
 

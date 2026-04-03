@@ -19,7 +19,7 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(!!this.getToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) { }
 
   // ─── OAuth Social Login ────────────────────────────────────────────────────
 
@@ -32,7 +32,6 @@ export class AuthService {
     const providerMap: Record<string, string> = {
       'Gmail': 'google',
       'Facebook': 'facebook',
-      'LinkedIn': 'linkedin',
       'Microsoft': 'microsoft',
       'Yahoo': 'yahoo',
     };
@@ -66,11 +65,19 @@ export class AuthService {
    * The auth interceptor adds the Bearer token automatically.
    */
   fetchCurrentUser(): Observable<User> {
-    return this.http.get<User>(`${this.API_URL}/auth/me`).pipe(
-      tap(user => {
-        this.setCurrentUser(user);
+    return this.http.get<any>(`${this.API_URL}/auth/me`).pipe(
+      tap(response => {
+        // Extract user data from response wrapper
+        const userData = response?.data || response;
+        this.setCurrentUser(userData);
       }),
       catchError(err => {
+        console.error('fetchCurrentUser error:', {
+          status: err.status,
+          message: err.message,
+          error: err.error,
+          token: this.getToken() ? 'Token exists' : 'No token'
+        });
         if (err.status === 401) {
           this.clearSession();
         }
@@ -86,15 +93,21 @@ export class AuthService {
    * via PUT /api/users/:id. The user must already be authenticated (has token).
    */
   registerUser(formData: any): Observable<AuthResponse> {
-    const userId = this.currentUserSubject.value?.id;
+    const user = this.currentUserSubject.value as any;
+
+    // Extract userId from various possible structures
+    let userId = user?.uid || user?.id || user?._id || user?.data?.uid || user?.data?.id || user?.data?._id;
+
     if (!userId) {
-      return throwError(() => new Error('No authenticated user found'));
+      console.error('registerUser: No user ID found. User object:', user);
+      return throwError(() => new Error('No authenticated user found. Please try logging in again.'));
     }
 
     return this.http.put<AuthResponse>(`${this.API_URL}/users/${userId}`, formData).pipe(
       tap(response => {
-        if (response.success && response.user) {
-          this.setCurrentUser(response.user);
+        const userData = response?.data || response?.user || response;
+        if (response.success && userData) {
+          this.setCurrentUser(userData);
         }
       }),
       catchError(err => {
@@ -110,20 +123,44 @@ export class AuthService {
    * Updates user profile via PUT /api/users/:id.
    */
   updateUserProfile(updatedData: Partial<User>): Observable<AuthResponse> {
-    const userId = this.currentUserSubject.value?.id;
+    const user = this.currentUserSubject.value as any;
+
+    // Extract userId from various possible structures
+    let userId = user?.uid;
+    if (!userId && user?.data) {
+      userId = user.data.uid;
+    }
+
     if (!userId) {
-      return throwError(() => new Error('No authenticated user found'));
+      console.error('User object structure:', user);
+      return throwError(() => new Error('No user ID found. Unable to update profile.'));
     }
 
     return this.http.put<AuthResponse>(`${this.API_URL}/users/${userId}`, updatedData).pipe(
       tap(response => {
-        if (response.success && response.user) {
-          this.setCurrentUser(response.user);
+        const userData = response?.data || response?.user || response;
+        if (response.success && userData) {
+          this.setCurrentUser(userData);
         }
       }),
       catchError(err => {
         const message = err.error?.message || 'Profile update failed. Please try again.';
         return throwError(() => new Error(message));
+      })
+    );
+  }
+
+  // ─── User Management ───────────────────────────────────────────────────────
+
+  /**
+   * Fetches all registered users from GET /api/users.
+   */
+  getAllUsers(): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/users`).pipe(
+      tap(response => console.log('Fetched all users:', response)),
+      catchError(err => {
+        console.error('getAllUsers error:', err);
+        return throwError(() => err);
       })
     );
   }

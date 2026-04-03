@@ -7,24 +7,28 @@
 
     <div class="profile-photo-container">
       <div class="photo-wrapper">
-        @if (previewPhoto || currentUser?.profilePhoto) {
-          <img [src]="previewPhoto || currentUser?.profilePhoto" alt="Profile Photo" class="profile-photo"
-            title="Your profile picture from login">
+        @if (previewPhoto || (currentUser?.data?.profilePic))
+        {
+        <img [src]="previewPhoto" alt="Profile Photo" class="profile-photo" title="Your profile picture from login">
         } @else {
-          <div class="profile-photo-placeholder">
-            <span>{{ (currentUser?.firstName?.[0] || '') + (currentUser?.lastName?.[0] || '') }}</span>
-          </div>
+        <div class="profile-photo-placeholder">
+          <span>{{ ((currentUser?.data?.firstName || currentUser?.firstName)?.[0] || '') + ((currentUser?.data?.lastName
+            || currentUser?.lastName)?.[0] || '') }}</span>
+        </div>
         }
-        
+
         <button type="button" class="edit-photo-btn" (click)="fileInput.click()" title="Update profile picture">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+            <path
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
           </svg>
         </button>
-        <input type="file" #fileInput (change)="onPhotoSelected($event)" accept="image/*" class="hidden-file-input" style="display: none;">
+        <input type="file" #fileInput (change)="onPhotoSelected($event)" accept="image/*" class="hidden-file-input"
+          style="display: none;">
       </div>
     </div>
 
+    @if (registrationForm) {
     <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="registration-form">
       <!-- Messages -->
       @if (errorMessage) {
@@ -89,7 +93,7 @@
         <div class="form-row form-row-2">
           <div class="form-group">
             <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
-            <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-input">
+            <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-input" [max]="maxDate">
             @if (getFieldError('dateOfBirth')) {
             <small class="error">
               {{ getFieldError('dateOfBirth') }}
@@ -116,7 +120,7 @@
 
         <div class="form-row form-row-2">
           <div class="form-group">
-            <label for="phone">Phone Number</label>
+            <label for="phone">Phone Number<span class="required">*</span></label>
             <input type="tel" id="phone" formControlName="phone" placeholder="Enter your phone number"
               class="form-input">
             @if (getFieldError('phone')) {
@@ -201,6 +205,11 @@
         </button>
       </div>
     </form>
+    } @else if (isLoading) {
+    <div class="loading-state" style="padding: 40px; text-align: center;">
+      <p>Loading your profile data...</p>
+    </div>
+    }
   </div>
 </div>
 

@@ -1,9 +1,28 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { TermsModalComponent } from '../terms-modal/terms-modal.component';
+
+export function minimumAgeValidator(minAge: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null;
+    }
+    const today = new Date();
+    const dob = new Date(control.value);
+
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    return age < minAge ? { minimumAge: { requiredValue: minAge, actualValue: age } } : null;
+  };
+}
 
 @Component({
   selector: 'app-registration',
@@ -23,6 +42,7 @@ export class RegistrationComponent implements OnInit {
   agreedToTerms = false;
   previewPhoto: string | null = null;
   selectedPhotoFile: File | null = null;
+  maxDate: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -31,6 +51,10 @@ export class RegistrationComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const today = new Date();
+    today.setFullYear(today.getFullYear() - 13);
+    this.maxDate = today.toISOString().split('T')[0];
+
     // Must be authenticated (token present) to reach this page
     if (!this.authService.getToken()) {
       this.router.navigate(['/login']);
@@ -45,6 +69,7 @@ export class RegistrationComponent implements OnInit {
       this.authService.fetchCurrentUser().subscribe({
         next: (user) => {
           this.currentUser = user;
+          console.log('Successfully logged in. User details:', this.currentUser);
           this.initializeForm();
           this.isLoading = false;
         },
@@ -54,23 +79,31 @@ export class RegistrationComponent implements OnInit {
         }
       });
     } else {
+      console.log('Successfully logged in. User details:', this.currentUser);
       this.initializeForm();
     }
   }
 
   initializeForm(): void {
+
+    const userData = this.currentUser;
+
+    if (!this.previewPhoto) {
+      this.previewPhoto = userData.profilePic;
+    }
+
     this.registrationForm = this.fb.group({
-      email: [{ value: this.currentUser?.email || '', disabled: true }, Validators.required],
-      userId: [{ value: this.currentUser?.id || '', disabled: true }, Validators.required],
-      firstName: [this.currentUser?.firstName || '', [Validators.required, Validators.minLength(2)]],
-      lastName: [this.currentUser?.lastName || '', [Validators.required, Validators.minLength(2)]],
-      phone: [this.currentUser?.phone || '', [Validators.pattern(/^[0-9\-\+\(\)\s]*$/)]],
-      dateOfBirth: [this.currentUser?.dateOfBirth || '', Validators.required],
-      gender: [this.currentUser?.gender || '', Validators.required],
-      location: [this.currentUser?.location || ''],
-      headline: [this.currentUser?.headline || ''],
-      bio: [this.currentUser?.bio || '', Validators.maxLength(500)],
-      website: [this.currentUser?.website || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]],
+      email: [{ value: userData?.email || '', disabled: true }],
+      userId: [{ value: userData?.id || userData?._id || '', disabled: true }],
+      firstName: [userData?.firstName || '', [Validators.required, Validators.minLength(1)]],
+      lastName: [userData?.lastName || '', [Validators.required, Validators.minLength(1)]],
+      phone: [userData?.phone || '', [Validators.required, Validators.pattern(/^[0-9\-\+\(\)\s]*$/)]],
+      dateOfBirth: [this.formatDateForInput(userData?.dateOfBirth) || '', [Validators.required, minimumAgeValidator(13)]],
+      gender: [userData?.gender || '', Validators.required],
+      location: [userData?.location || ''],
+      headline: [userData?.headline || ''],
+      bio: [userData?.bio || '', Validators.maxLength(500)],
+      website: [userData?.website || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]],
       agreedToTerms: [false, Validators.requiredTrue]
     });
   }
@@ -114,11 +147,21 @@ export class RegistrationComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const formData = this.registrationForm.getRawValue();
-    delete formData.agreedToTerms;
-    delete formData.userId; // not needed in the PUT body
+    // Construct form data for registration
+    const registrationData: any = {
+      ...this.registrationForm.getRawValue(),
+      registerUser: true
+    };
 
-    this.authService.registerUser(formData).subscribe({
+    // Include profile photo if it exists (either new or existing)
+    if (this.previewPhoto) {
+      registrationData.profilePic = this.previewPhoto;
+    }
+
+    // Clean up unnecessary fields for the backend
+    delete registrationData.agreedToTerms;
+
+    this.authService.registerUser(registrationData).subscribe({
       next: (response) => {
         if (response.success) {
           this.successMessage = 'Registration completed successfully! Redirecting to profile...';
@@ -139,6 +182,7 @@ export class RegistrationComponent implements OnInit {
       }
     });
   }
+
 
   resetForm(): void {
     this.registrationForm.reset();
@@ -162,6 +206,16 @@ export class RegistrationComponent implements OnInit {
     }
   }
 
+  formatDateForInput(date: string | Date | undefined): string {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   getFieldError(fieldName: string): string {
     const field = this.registrationForm.get(fieldName);
     if (!field || !field.errors || !field.touched) {
@@ -179,6 +233,9 @@ export class RegistrationComponent implements OnInit {
     }
     if (field.errors['pattern']) {
       return `${fieldName} format is invalid`;
+    }
+    if (field.errors['minimumAge']) {
+      return `You must be at least ${field.errors['minimumAge'].requiredValue} years old`;
     }
 
     return 'Invalid input';

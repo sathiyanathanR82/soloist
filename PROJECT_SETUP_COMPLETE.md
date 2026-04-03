@@ -9,7 +9,7 @@ soloist/
 │   │   ├── components/
 │   │   │   ├── login/
 │   │   │   │   ├── login.component.ts            ✅ Social login logic
-│   │   │   │   ├── login.component.html          ✅ 5 social provider buttons
+│   │   │   │   ├── login.component.html          ✅ 4 social provider buttons
 │   │   │   │   └── login.component.scss          ✅ Gradient styling
 │   │   │   │
 │   │   │   ├── registration/
@@ -83,7 +83,7 @@ soloist/
 ## 🎯 Features Implemented
 
 ### ✅ Authentication
-- [x] Social login (5 providers)
+- [x] Social login (4 providers)
 - [x] Mock OAuth flow
 - [x] Auto-generated user IDs
 - [x] Data persistence
@@ -164,7 +164,6 @@ npm install angular-oauth2-oidc
 
 Then configure each provider:
 1. **Facebook**: Create app at developers.facebook.com
-2. **LinkedIn**: Create app at linkedin.com/developers
 3. **Google**: Create OAuth project at console.cloud.google.com
 4. **Microsoft**: Create app at portal.azure.com
 5. **Yahoo**: Create app at developer.yahoo.com

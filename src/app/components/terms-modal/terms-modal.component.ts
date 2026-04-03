@@ -20,7 +20,7 @@ export class TermsModalComponent {
     <p>By accessing and using this application, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
 
     <h4>2. User Accounts and Registration</h4>
-    <p>When you create an account with us through social login providers (Facebook, LinkedIn, Gmail, Yahoo, or Microsoft), you must provide accurate, complete, and current information. You agree to maintain the confidentiality of your password and are fully responsible for all activities that occur under your account.</p>
+    <p>When you create an account with us through social login providers (Facebook, Gmail, Yahoo, or Microsoft), you must provide accurate, complete, and current information. You agree to maintain the confidentiality of your password and are fully responsible for all activities that occur under your account.</p>
 
     <h4>3. Use License</h4>
     <p>Permission is granted to temporarily download one copy of the materials (information or software) on Soloist's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>

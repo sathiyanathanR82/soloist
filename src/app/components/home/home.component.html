@@ -1,0 +1,47 @@
+<div class="home-container">
+  <div class="header">
+    <h1>Nearby Soloists</h1>
+    <p>Discover people in your community based on proximity.</p>
+  </div>
+
+  <div class="user-grid">
+    @if (isLoading) {
+    <div class="loading-state">
+      <p>Finding soloists near you...</p>
+    </div>
+    }
+
+    @if (!isLoading && errorMessage) {
+    <div class="error-state">
+      <p>{{ errorMessage }}</p>
+    </div>
+    }
+
+    @if (!isLoading && users.length === 0) {
+    <div class="empty-state">
+      <p>No other registered users found nearby yet. You're the first in your area!</p>
+    </div>
+    }
+
+    @for (user of users; track user.uid || user.id) {
+    <div class="user-card">
+      <div class="card-header">
+        @if (user.profilePic || user.profilePhoto) {
+        <img [src]="user.profilePic || user.profilePhoto" class="avatar" alt="User Avatar">
+        } @else {
+        <div class="avatar">{{ getInitials(user) }}</div>
+        }
+        <div class="info">
+          <h3>{{ user.firstName || user.lastName }}</h3>
+          <span class="distance">{{ formatDistance(user.distance) }}</span>
+        </div>
+      </div>
+      <p class="bio">{{ user.bio || 'No bio provided.' }}</p>
+      <div class="meta">
+        <span class="location">📍 {{ user.location || 'Unknown' }}</span>
+        <span class="last-seen">Active recently</span>
+      </div>
+    </div>
+    }
+  </div>
+</div>

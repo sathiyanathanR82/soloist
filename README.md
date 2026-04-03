@@ -1,10 +1,10 @@
 # Soloist - Social Login & Registration App
 
-A modern Angular application built with social authentication (Facebook, LinkedIn, Gmail, Yahoo, Microsoft), comprehensive registration form, and user profile management - similar to Facebook and LinkedIn.
+A modern Angular application built with social authentication (Facebook, Gmail, Yahoo, Microsoft), comprehensive registration form, and user profile management - similar to Facebook.
 
 ## 🎯 Features
 
-- **Social Authentication**: Login with Facebook, LinkedIn, Gmail, Yahoo, or Microsoft
+- **Social Authentication**: Login with Facebook, Gmail, Yahoo, or Microsoft
 - **User Registration**: Complete registration form with validation
 - **Profile Management**: View and edit user profile with detailed information
 - **Editable & Non-Editable Fields**:
@@ -12,7 +12,7 @@ A modern Angular application built with social authentication (Facebook, LinkedI
   - Editable: Name, location, bio, headline, phone, website, etc.
 - **Terms & Conditions**: Interactive modal with full T&C that users must agree to
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Modern UI**: Facebook/LinkedIn-inspired design with smooth animations
+- **Modern UI**: Facebook-inspired design with smooth animations
 - **Data Persistence**: User data saved in localStorage
 
 ## 📋 Prerequisites
@@ -77,7 +77,7 @@ soloist/
 
 ## 🔄 User Flow
 
-1. **Login**: User clicks on a social provider button (Facebook, LinkedIn, etc.)
+1. **Login**: User clicks on a social provider button (Facebook, etc.)
    - Mock social authentication simulates provider login
    - Creates a user session with basic info from social provider
 
@@ -105,7 +105,6 @@ Currently, the app uses mock authentication for demonstration purposes. To integ
 
 Example providers:
 - [Facebook Login](https://developers.facebook.com/docs/facebook-login/web/)
-- [LinkedIn Sign In](https://docs.microsoft.com/en-gb/linkedin/shared/authentication/authentication)
 - [Google Sign-In](https://developers.google.com/identity)
 - [Microsoft Identity](https://docs.microsoft.com/en-us/azure/active-directory/develop/)
 - [Yahoo OAuth](https://developer.yahoo.com/oauth2/guide/)
