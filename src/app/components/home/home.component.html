@@ -23,7 +23,7 @@
     </div>
     }
 
-    @for (user of users; track user.uid || user.id) {
+    @for (user of users; track user.uid || user.id || $index) {
     <div class="user-card">
       <div class="card-header">
         @if (user.profilePic || user.profilePhoto) {

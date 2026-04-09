@@ -157,7 +157,7 @@ export class AuthService {
    */
   getAllUsers(): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/users`).pipe(
-      tap(response => console.log('Fetched all users:', response)),
+      tap(response => { }),//console.log('Fetched all users:', response)),
       catchError(err => {
         console.error('getAllUsers error:', err);
         return throwError(() => err);

@@ -43,6 +43,8 @@ export class RegistrationComponent implements OnInit {
   previewPhoto: string | null = null;
   selectedPhotoFile: File | null = null;
   maxDate: string = '';
+  latitude: number | null = null;
+  longitude: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -81,6 +83,23 @@ export class RegistrationComponent implements OnInit {
     } else {
       console.log('Successfully logged in. User details:', this.currentUser);
       this.initializeForm();
+    }
+
+    this.getUserLocation();
+  }
+
+  getUserLocation(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.latitude = position.coords.latitude;
+          this.longitude = position.coords.longitude;
+          console.log('Location captured:', this.latitude, this.longitude);
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+        }
+      );
     }
   }
 
@@ -150,7 +169,9 @@ export class RegistrationComponent implements OnInit {
     // Construct form data for registration
     const registrationData: any = {
       ...this.registrationForm.getRawValue(),
-      registerUser: true
+      registerUser: true,
+      latitude: this.latitude,
+      longitude: this.longitude
     };
 
     // Include profile photo if it exists (either new or existing)

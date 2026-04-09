@@ -1,0 +1,101 @@
+.privacy-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+  padding: 80px 20px;
+  color: #f8fafc;
+  display: flex;
+  justify-content: center;
+
+  .content-card {
+    background: rgba(30, 41, 59, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 60px;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        background: linear-gradient(to right, #818cf8, #c084fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .last-updated {
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+    }
+
+    section {
+      margin-bottom: 35px;
+
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #818cf8;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(129, 140, 248, 0.2);
+        padding-bottom: 0.5rem;
+      }
+
+      p, li {
+        color: #cbd5e1;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        margin-bottom: 1rem;
+      }
+
+      ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+      }
+    }
+
+    footer {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+
+      .btn-back {
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        color: white;
+        border: none;
+        padding: 12px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .privacy-container {
+    padding: 40px 15px;
+    
+    .content-card {
+      padding: 30px;
+      
+      header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}
