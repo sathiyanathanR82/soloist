@@ -22,10 +22,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private pollingSubscription?: Subscription;
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private router: Router,
     private networkService: NetworkService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Poll for new network requests every 30 seconds when authenticated
@@ -70,5 +70,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
       return (first + last).toUpperCase();
     }
     return '';
+  }
+
+
+  public capitalizeFirstLetter(string: string | undefined): string {
+    if (!string) return "";
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 }

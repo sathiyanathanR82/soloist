@@ -38,7 +38,8 @@
               }
             </div>
             <div class="user-info">
-              <div class="welcome-text"><i>Welcome!</i> <span class="user-name">{{ user?.firstName }}</span></div>
+              <div class="welcome-text"><i>Welcome!</i> <span class="user-name">{{
+                  capitalizeFirstLetter(user?.firstName) }}</span></div>
               <div class="last-login">{{ user?.lastLogin | date:'short' }}</div>
             </div>
 

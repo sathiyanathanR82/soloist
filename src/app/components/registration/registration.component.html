@@ -170,6 +170,58 @@
         </div>
       </div>
 
+      <!-- Privacy Settings Section -->
+      <div class="form-section privacy-section">
+        <h3><mat-icon style="vertical-align: middle; margin-right: 8px;">lock</mat-icon> Privacy Settings</h3>
+        <p class="section-hint" style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 15px;">Control who can see
+          your information and how you appear in search.</p>
+
+        <div class="form-row form-row-2">
+          <!-- Profile Visibility -->
+          <div class="form-group">
+            <label for="profileVisibility">Profile Visibility</label>
+            <select id="profileVisibility" formControlName="profileVisibility" class="form-input">
+              <option value="All users">All users</option>
+              <option value="Only my network">Only my network</option>
+              <option value="Only me">Only me</option>
+            </select>
+            <small class="hint">Who can view your full profile?</small>
+          </div>
+
+          <!-- Nearby Search Toggle -->
+          <div class="form-group checkbox-group" style="padding-top: 25px;">
+            <input type="checkbox" id="showInNearbySearch" formControlName="showInNearbySearch" class="checkbox-input">
+            <label for="showInNearbySearch" class="checkbox-label" style="font-weight: 500;">
+              Show me in Nearby
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row form-row-2">
+          <!-- Email Visibility -->
+          <div class="form-group">
+            <label for="emailVisibility">Email Visibility</label>
+            <select id="emailVisibility" formControlName="emailVisibility" class="form-input">
+              <option value="All users">All users</option>
+              <option value="Only my network">Only my network</option>
+              <option value="Only me">Only me</option>
+            </select>
+            <small class="hint">Who can see your email address?</small>
+          </div>
+
+          <!-- Phone Visibility -->
+          <div class="form-group">
+            <label for="phoneVisibility">Phone Visibility</label>
+            <select id="phoneVisibility" formControlName="phoneVisibility" class="form-input">
+              <option value="All users">All users</option>
+              <option value="Only my network">Only my network</option>
+              <option value="Only me">Only me</option>
+            </select>
+            <small class="hint">Who can see your phone number?</small>
+          </div>
+        </div>
+      </div>
+
       <!-- Terms and Conditions Section -->
       <div class="form-section terms-section">
         <div class="checkbox-group">
@@ -189,8 +241,10 @@
         </small>
         }
         <div class="registration-links" style="margin-top: 15px; font-size: 0.85rem; color: #94a3b8;">
-          Review our <a href="/privacy-policy" target="_blank" style="color: #818cf8; text-decoration: none;">Privacy Policy</a> and 
-          <a href="/user-data-deletion" target="_blank" style="color: #818cf8; text-decoration: none;">Data Deletion Instructions</a>.
+          Review our <a href="/privacy-policy" target="_blank" style="color: #818cf8; text-decoration: none;">Privacy
+            Policy</a> and
+          <a href="/user-data-deletion" target="_blank" style="color: #818cf8; text-decoration: none;">Data Deletion
+            Instructions</a>.
         </div>
       </div>
 

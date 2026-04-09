@@ -221,8 +221,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
           const isMe = matchUid;
           const isRegistered = u.registerUser === true;
+          const isVisible = u.showInNearbySearch !== false; // Default to true if not set
 
-          return u && typeof u === 'object' && isRegistered && !isMe;
+          return u && typeof u === 'object' && isRegistered && !isMe && isVisible;
         });
 
         this.users = filteredUsers.map((user: User) => {

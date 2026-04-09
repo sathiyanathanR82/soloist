@@ -3,11 +3,12 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, MatIcon],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
@@ -106,7 +107,11 @@ export class ProfileComponent implements OnInit {
       bio: [this.currentUser?.bio || '', Validators.maxLength(500)],
       website: [this.currentUser?.website || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]],
       dateOfBirth: [this.formatDateForInput(this.currentUser?.dateOfBirth) || '', [Validators.required]],
-      gender: [this.currentUser?.gender || '']
+      gender: [this.currentUser?.gender || ''],
+      profileVisibility: [this.currentUser?.profileVisibility || 'All users'],
+      emailVisibility: [this.currentUser?.emailVisibility || 'All users'],
+      phoneVisibility: [this.currentUser?.phoneVisibility || 'All users'],
+      showInNearbySearch: [this.currentUser?.showInNearbySearch !== undefined ? this.currentUser.showInNearbySearch : true]
     });
   }
 
@@ -130,7 +135,7 @@ export class ProfileComponent implements OnInit {
     this.successMessage = '';
 
     const updatedData = { ...this.editForm.value };
-    
+
     // Include profile photo if updated
     if (this.previewPhoto) {
       updatedData.profilePic = this.previewPhoto;
@@ -143,7 +148,7 @@ export class ProfileComponent implements OnInit {
           this.editMode = false;
           this.previewPhoto = null;
           this.selectedPhotoFile = null;
-          
+
           setTimeout(() => {
             this.successMessage = '';
           }, 3000);

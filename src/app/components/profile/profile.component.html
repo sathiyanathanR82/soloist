@@ -187,6 +187,29 @@
           </div>
         </div>
       </section>
+
+      <!-- Privacy Settings -->
+      <section class="profile-section">
+        <h2>Privacy Settings</h2>
+        <div class="section-content">
+          <div class="info-row">
+            <span class="label">Profile Visibility:</span>
+            <span class="value">{{ currentUser?.profileVisibility || 'All users' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Email Visibility:</span>
+            <span class="value">{{ currentUser?.emailVisibility || 'All users' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Phone Visibility:</span>
+            <span class="value">{{ currentUser?.phoneVisibility || 'All users' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Nearby Search:</span>
+            <span class="value">{{ currentUser?.showInNearbySearch ? 'Enabled' : 'Disabled' }}</span>
+          </div>
+        </div>
+      </section>
     </div>
     <!-- Bio Section -->
     @if (currentUser?.bio) {
@@ -207,7 +230,8 @@
       <form [formGroup]="editForm" (ngSubmit)="saveChanges()" class="edit-form">
         <!-- Personal Information -->
         <div class="form-section">
-          <h3>Personal Information</h3>
+          <h3><mat-icon style="vertical-align: middle; margin-right: 8px;">badge</mat-icon>Personal Information
+          </h3>
 
           <div class="form-row form-row-2">
             <div class="form-group">
@@ -269,7 +293,8 @@
 
         <!-- Professional Information -->
         <div class="form-section">
-          <h3>Professional Information</h3>
+          <h3><mat-icon style="vertical-align: middle; margin-right: 8px;">home_repair_service</mat-icon>Professional
+            Information</h3>
 
           <div class="form-group">
             <label for="headline">Professional Headline</label>
@@ -298,6 +323,56 @@
               {{ getFieldError('website') }}
             </small>
             }
+          </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="form-section privacy-section">
+          <h3><mat-icon style="vertical-align: middle; margin-right: 8px;">lock</mat-icon> Privacy Settings</h3>
+          <p class="section-hint" style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 20px;">Control your
+            information visibility and search presence.</p>
+
+          <div class="form-row form-row-2">
+            <!-- Profile Visibility -->
+            <div class="form-group">
+              <label for="profileVisibility">Profile Visibility</label>
+              <select id="profileVisibility" formControlName="profileVisibility" class="form-input">
+                <option value="All users">All users</option>
+                <option value="Only my network">Only my network</option>
+                <option value="Only me">Only me</option>
+              </select>
+            </div>
+
+            <!-- Nearby Search Toggle -->
+            <div class="form-group checkbox-group" style="padding-top: 25px;">
+              <input type="checkbox" id="showInNearbySearch" formControlName="showInNearbySearch"
+                class="checkbox-input">
+              <label for="showInNearbySearch" class="checkbox-label" style="font-weight: 500;">
+                Show me in Nearby
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row form-row-2">
+            <!-- Email Visibility -->
+            <div class="form-group">
+              <label for="emailVisibility">Email Visibility</label>
+              <select id="emailVisibility" formControlName="emailVisibility" class="form-input">
+                <option value="All users">All users</option>
+                <option value="Only my network">Only my network</option>
+                <option value="Only me">Only me</option>
+              </select>
+            </div>
+
+            <!-- Phone Visibility -->
+            <div class="form-group">
+              <label for="phoneVisibility">Phone Visibility</label>
+              <select id="phoneVisibility" formControlName="phoneVisibility" class="form-input">
+                <option value="All users">All users</option>
+                <option value="Only my network">Only my network</option>
+                <option value="Only me">Only me</option>
+              </select>
+            </div>
           </div>
         </div>
 

@@ -141,6 +141,22 @@
       transition: color 0.3s ease, border-color 0.3s ease;
     }
 
+    &.privacy-section {
+      background: var(--bg-hover, #f8fafc);
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color, #e2e8f0);
+      margin-top: 20px;
+
+      h3 {
+        border-bottom: none;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        color: #667eea;
+      }
+    }
+
     &.terms-section {
       background: var(--bg-color);
       padding: 16px;
@@ -169,6 +185,16 @@
   .form-group {
     display: flex;
     flex-direction: column;
+
+    &.checkbox-group {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+
+      .checkbox-label {
+        margin-bottom: 0;
+      }
+    }
 
     label {
       font-weight: 600;

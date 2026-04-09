@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { TermsModalComponent } from '../terms-modal/terms-modal.component';
+import { MatIcon } from '@angular/material/icon';
 
 export function minimumAgeValidator(minAge: number): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -27,7 +28,7 @@ export function minimumAgeValidator(minAge: number): ValidatorFn {
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TermsModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, TermsModalComponent, MatIcon],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
@@ -123,7 +124,11 @@ export class RegistrationComponent implements OnInit {
       headline: [userData?.headline || ''],
       bio: [userData?.bio || '', Validators.maxLength(500)],
       website: [userData?.website || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]],
-      agreedToTerms: [false, Validators.requiredTrue]
+      agreedToTerms: [false, Validators.requiredTrue],
+      profileVisibility: [userData?.profileVisibility || 'All users'],
+      emailVisibility: [userData?.emailVisibility || 'All users'],
+      phoneVisibility: [userData?.phoneVisibility || 'All users'],
+      showInNearbySearch: [userData?.showInNearbySearch !== undefined ? userData.showInNearbySearch : true]
     });
   }
 

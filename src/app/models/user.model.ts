@@ -34,6 +34,10 @@ export interface User {
   };
   lastLogin?: Date | string;
   isOnline?: boolean;
+  profileVisibility?: 'All users' | 'Only my network' | 'Only me';
+  emailVisibility?: 'All users' | 'Only my network' | 'Only me';
+  phoneVisibility?: 'All users' | 'Only my network' | 'Only me';
+  showInNearbySearch?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -50,6 +54,10 @@ export interface RegistrationFormData {
   dateOfBirth?: string;
   gender?: string;
   agreedToTerms: boolean;
+  profileVisibility?: string;
+  emailVisibility?: string;
+  phoneVisibility?: string;
+  showInNearbySearch?: boolean;
 }
 
 export interface AuthResponse {
