@@ -6,6 +6,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { HomeComponent } from './components/home/home.component';
 import { PrivacyPolicyComponent } from './components/privacy-policy/privacy-policy.component';
 import { UserDataDeletionComponent } from './components/user-data-deletion/user-data-deletion.component';
+import { NetworkComponent } from './components/network/network.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -13,6 +14,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'registration', component: RegistrationComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'network', component: NetworkComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
   { path: 'user-data-deletion', component: UserDataDeletionComponent },
   { path: '**', redirectTo: 'home' }

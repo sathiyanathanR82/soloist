@@ -133,3 +133,7 @@ button:disabled:hover {
   transform: translateY(0px);
   box-shadow: none;
 }
+
+button.nobtnhovermove:hover {
+  transform: translateY(0px);
+}

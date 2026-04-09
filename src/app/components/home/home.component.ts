@@ -1,26 +1,35 @@
-import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
-import { User } from '../../models/user.model';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { NetworkService } from '../../services/network.service';
+import { User } from '../../models/user.model';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { interval, Subscription, startWith, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   users: (User & { distance?: number })[] = [];
   currentUser: User | null = null;
   currentLat: number | null = null;
   currentLng: number | null = null;
   isLoading = true;
   errorMessage = '';
+  pendingRequests: any[] = [];
+  incomingRemovalRequests: any[] = [];
+  private pollSubscription?: Subscription;
 
   constructor(
     private authService: AuthService,
+    private networkService: NetworkService,
     private router: Router,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef
@@ -34,6 +43,126 @@ export class HomeComponent implements OnInit {
     }
 
     this.getLocation();
+    this.startPolling();
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollSubscription) {
+      this.pollSubscription.unsubscribe();
+    }
+  }
+
+  private startPolling(): void {
+    // Poll for new data every 30 seconds to keep the list synced
+    this.pollSubscription = interval(30000)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.authService.isAuthenticated$)
+      )
+      .subscribe(isAuth => {
+        if (isAuth) {
+          this.loadUsers();
+        }
+      });
+  }
+
+  // Connection State Helpers
+  isConnected(user: User): boolean {
+    const targetUid = user.uid || user.id;
+    return !!this.currentUser?.network?.myNetwork?.includes(targetUid!);
+  }
+
+  isPending(user: User): boolean {
+    const myUid = this.currentUser?.uid || this.currentUser?.id;
+    return !!user.network?.request?.includes(myUid!);
+  }
+
+  isRemovalPending(user: User): boolean {
+    const myUid = this.currentUser?.uid || this.currentUser?.id;
+    return !!user.network?.removalRequest?.includes(myUid!);
+  }
+
+  toggleNetwork(user: User): void {
+    const targetId = user.uid;
+    if (!targetId) return;
+
+    if (this.isConnected(user)) {
+      if (this.isRemovalPending(user)) {
+        // Option to cancel the removal request if supported (not explicitly requested, but good UX)
+        // For now, just show a message.
+        alert('A removal request has already been sent and is awaiting approval.');
+        return;
+      }
+
+      if (confirm(`Request to remove ${user.firstName} from your network? This will require their approval.`)) {
+        this.networkService.removeConnection(targetId).subscribe({
+          next: () => this.refreshData(),
+          error: (err) => console.error('Failed to request network removal:', err)
+        });
+      }
+    } else if (this.isPending(user)) {
+      this.networkService.cancelRequest(targetId).subscribe({
+        next: () => this.refreshData(),
+        error: (err) => console.error('Failed to cancel request:', err)
+      });
+    } else {
+      this.networkService.sendRequest(targetId).subscribe({
+        next: () => this.refreshData(),
+        error: (err) => console.error('Failed to send request:', err)
+      });
+    }
+  }
+
+  // Request Action Handlers
+  approveRequest(requesterId: string): void {
+    this.networkService.approveRequest(requesterId).subscribe({
+      next: () => this.loadUsers(),
+      error: (err) => console.error('Failed to approve request:', err)
+    });
+  }
+
+  rejectRequest(requesterId: string): void {
+    this.networkService.rejectRequest(requesterId).subscribe({
+      next: () => this.loadUsers(),
+      error: (err) => console.error('Failed to reject request:', err)
+    });
+  }
+
+  approveRemoval(requesterId: string): void {
+    this.networkService.approveRemoval(requesterId).subscribe({
+      next: () => this.loadUsers(),
+      error: (err) => console.error('Failed to approve removal:', err)
+    });
+  }
+
+  rejectRemoval(requesterId: string): void {
+    this.networkService.rejectRemoval(requesterId).subscribe({
+      next: () => this.loadUsers(),
+      error: (err) => console.error('Failed to reject removal:', err)
+    });
+  }
+
+  getLastSeen(user: User): string {
+    if (user.isOnline) return 'Online now';
+    if (!user.lastLogin) return 'Active recently';
+
+    const lastLogin = new Date(user.lastLogin);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - lastLogin.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `Active ${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `Active ${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 172800) return 'Active yesterday';
+    
+    return `Active ${Math.floor(diffInSeconds / 86400)}d ago`;
+  }
+
+  private refreshData(): void {
+    this.authService.fetchCurrentUser().subscribe(user => {
+      // this.currentUser = user;
+      this.loadUsers();
+    });
   }
 
   getLocation(): void {
@@ -44,18 +173,15 @@ export class HomeComponent implements OnInit {
             this.currentLat = position.coords.latitude;
             this.currentLng = position.coords.longitude;
 
-            // Persist location to backend each time the user lands here (covers "each login")
             if (this.currentLat !== null && this.currentLat !== undefined &&
               this.currentLng !== null && this.currentLng !== undefined) {
               this.authService.updateUserProfile({
                 latitude: this.currentLat,
                 longitude: this.currentLng
               }).subscribe({
-                next: () => { },//console.log('Location synced to backend'),
-                error: (err) => { } //console.error('Failed to sync location:', err)
+                next: () => { },
+                error: (err) => { }
               });
-            } else {
-              console.warn('Location available but coordinates are invalid. Skipping sync.');
             }
 
             this.loadUsers();
@@ -65,7 +191,7 @@ export class HomeComponent implements OnInit {
           this.ngZone.run(() => {
             console.error('Error getting location:', error);
             this.errorMessage = 'Unable to get your location. Displaying users alphabetically.';
-            this.loadUsers(); // Load users anyway, but won't be sorted by distance
+            this.loadUsers();
           });
         }
       );
@@ -78,38 +204,28 @@ export class HomeComponent implements OnInit {
   loadUsers(): void {
     this.authService.getAllUsers().subscribe({
       next: (response: any) => {
-        // Extract users from various possible response structures
         let allUsers = Array.isArray(response) ? response : (response?.data || response?.users || response?.user || []);
 
-        // Ensure allUsers is an array and filter out non-object entries (security/integrity check)
         if (!Array.isArray(allUsers)) {
-          console.warn('Expected array of users, but got:', typeof allUsers, allUsers);
           allUsers = [];
         }
 
-        // Filter users who are registered and not the current user, with strict null checks
-        let filteredUsers = allUsers.filter((u: User) => {
-          const isMe = (u.uid && u.uid === this.currentUser?.uid) || (u.id && u.id === this.currentUser?.id);
-          const isRegistered = u.registerUser === true;
+        const filteredUsers = allUsers.filter((u: any) => {
+          const myUid = this.currentUser?.uid;
+          // const myId = this.currentUser?.id || (this.currentUser as any)?._id;
+          // const myEmail = this.currentUser?.email;
 
-          // if (isMe) console.log('Filtered out (Self):', u.firstName || u.uid || u.id);
+          const matchUid = (u.uid && u.uid === myUid) || (u._id && u._id === myUid);
+          // const matchId = (u.id && u.id === myId) || (u._id && u._id === myId);
+          // const matchEmail = u.email && u.email === myEmail;
+
+          const isMe = matchUid;
+          const isRegistered = u.registerUser === true;
 
           return u && typeof u === 'object' && isRegistered && !isMe;
         });
 
-        // Fallback: If no users have registerUser=true, but we have users in DB, use them for display
-        if (filteredUsers.length === 0 && allUsers.length > 0) {
-          console.warn('No users with registerUser=true found. Showing all users as fallback.');
-          filteredUsers = allUsers.filter((u: User) => {
-            const isMe = (u.uid && u.uid === this.currentUser?.uid) || (u.id && u.id === this.currentUser?.id);
-            return u && typeof u === 'object' && !isMe;
-          });
-        }
-
-        // console.log('Final filteredUsers:', filteredUsers);
-
         this.users = filteredUsers.map((user: User) => {
-          // Extra safety check for the user object itself
           if (!user || typeof user !== 'object') return null;
 
           const hasLat = user.latitude !== null && user.latitude !== undefined;
@@ -127,9 +243,7 @@ export class HomeComponent implements OnInit {
           return user;
         }).filter((u: any) => u !== null) as (User & { distance?: number })[];
 
-        // Sort by distance if available, otherwise by name
         this.users.sort((a, b) => {
-          // If both have distance, sort by it
           const distA = a.distance;
           const distB = b.distance;
 
@@ -137,11 +251,9 @@ export class HomeComponent implements OnInit {
             return distA - distB;
           }
 
-          // Push users with unknown location to the end
           if (distA !== undefined) return -1;
           if (distB !== undefined) return 1;
 
-          // Secondary sort by name
           const nameA = a.firstName || a.lastName || '';
           const nameB = b.firstName || b.lastName || '';
           return nameA.localeCompare(nameB);
@@ -149,6 +261,17 @@ export class HomeComponent implements OnInit {
 
         this.isLoading = false;
         this.cdr.detectChanges();
+
+        // Fetch pending requests for the current user
+        this.networkService.getNetworkInfo().subscribe({
+          next: (info: any) => {
+            if (info.success) {
+              this.pendingRequests = info.data.requests || [];
+              this.incomingRemovalRequests = info.data.removalRequests || [];
+              this.cdr.detectChanges();
+            }
+          }
+        });
       },
       error: (err) => {
         console.error('Error loading users:', err);
@@ -160,7 +283,7 @@ export class HomeComponent implements OnInit {
   }
 
   calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371; // Radius of the earth in km
+    const R = 6371;
     const dLat = this.deg2rad(lat2 - lat1);
     const dLon = this.deg2rad(lon2 - lon1);
     const a =
@@ -168,7 +291,7 @@ export class HomeComponent implements OnInit {
       Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in km
+    return R * c;
   }
 
   deg2rad(deg: number): number {

@@ -1,53 +1,66 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NetworkService } from '../../services/network.service';
 import { CommonModule } from '@angular/common';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { delay } from 'rxjs';
+import { interval, delay, takeWhile, Subscription, startWith, switchMap } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule, MatBadgeModule],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss'],
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ]),
-      transition(':leave', [
-        animate('150ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
-      ])
-    ])
-  ]
+  styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent {
-  showUserMenu = false;
+export class NavbarComponent implements OnInit, OnDestroy {
   isAuthenticated$ = this.authService.isAuthenticated$.pipe(delay(0));
   currentUser$ = this.authService.currentUser$.pipe(delay(0));
+  networkRequestsCount$ = this.networkService.networkRequestsCount$;
+  private pollingSubscription?: Subscription;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private networkService: NetworkService
+  ) {}
 
-  toggleUserMenu(): void {
-    this.showUserMenu = !this.showUserMenu;
+  ngOnInit(): void {
+    // Poll for new network requests every 30 seconds when authenticated
+    this.pollingSubscription = this.authService.isAuthenticated$.pipe(
+      switchMap(isAuth => {
+        if (isAuth) {
+          return interval(30000).pipe(
+            startWith(0), // Trigger immediately on login
+            switchMap(() => this.networkService.getNetworkInfo())
+          );
+        }
+        return [];
+      })
+    ).subscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.pollingSubscription?.unsubscribe();
+  }
+
+  goToNetwork(): void {
+    this.router.navigate(['/network']);
   }
 
   goToProfile(): void {
     this.router.navigate(['/profile']);
-    this.showUserMenu = false;
   }
 
   goToHome(): void {
     this.router.navigate(['/home']);
-    this.showUserMenu = false;
   }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-    this.showUserMenu = false;
   }
 
   getInitials(user: any): string {

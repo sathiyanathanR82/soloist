@@ -26,6 +26,14 @@ export interface User {
   registerUser?: boolean;
   latitude?: number;
   longitude?: number;
+  network?: {
+    myNetwork: string[];
+    request: string[];
+    block: string[];
+    removalRequest: string[];
+  };
+  lastLogin?: Date | string;
+  isOnline?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

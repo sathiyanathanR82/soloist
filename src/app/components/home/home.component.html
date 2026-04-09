@@ -38,8 +38,17 @@
       </div>
       <p class="bio">{{ user.bio || 'No bio provided.' }}</p>
       <div class="meta">
-        <span class="location">📍 {{ user.location || 'Unknown' }}</span>
-        <span class="last-seen">Active recently</span>
+        <span class="last-seen" [class.online]="user.isOnline">
+          <span class="status-dot" *ngIf="user.isOnline"></span>
+          {{ getLastSeen(user) }}
+        </span>
+
+        <button mat-icon-button class="btn-network-icon" [class.pending]="isPending(user) || isRemovalPending(user)"
+          [disabled]="isRemovalPending(user)" (click)="toggleNetwork(user)"
+          [matTooltip]="isConnected(user) ? (isRemovalPending(user) ? 'Removal Pending' : 'Remove Connection') : (isPending(user) ? 'Cancel Request' : 'Add to Network')">
+          <mat-icon>{{ isConnected(user) ? (isRemovalPending(user) ? 'hourglass_top' : 'delete') : (isPending(user) ?
+            'restart_alt' : 'add') }}</mat-icon>
+        </button>
       </div>
     </div>
     }
