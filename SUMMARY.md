@@ -10,7 +10,7 @@ Status: **✅ READY TO USE**
 A **complete, production-ready Angular application** with:
 
 ### ✅ 5 Main Components
-1. **Login** - Social auth with 5 providers
+1. **Login** - Social auth with 4 providers
 2. **Registration** - Form with validation & T&C
 3. **Profile** - Display & edit user details
 4. **Terms Modal** - Popup with full terms
@@ -22,7 +22,7 @@ A **complete, production-ready Angular application** with:
 - Observable-based state management
 
 ### ✅ Complete Features
-- ✓ Social login (Facebook, LinkedIn, Gmail, Yahoo, Microsoft)
+- ✓ Social login (Facebook, Gmail, Yahoo, Microsoft)
 - ✓ User registration with validation
 - ✓ Profile management (view & edit)
 - ✓ Non-editable fields (email, user ID)
@@ -123,7 +123,7 @@ npm run build
 ```
 LOGIN PAGE
     ↓
-Click Social Provider (Facebook/LinkedIn/Gmail/Yahoo/Microsoft)
+Click Social Provider (Facebook/Gmail/Yahoo/Microsoft)
     ↓
 REGISTRATION PAGE
     ↓
@@ -143,7 +143,7 @@ Logout (Returns to login)
 ## 📱 Features Breakdown
 
 ### **Login Component**
-- 5 social provider buttons
+- 4 social provider buttons
 - Mock OAuth flow
 - Loading animation
 - Error handling
@@ -261,7 +261,6 @@ Edit `src/styles.scss` or component `.scss` files:
 Primary: #667eea
 Secondary: #764ba2
 Facebook: #1877f2
-LinkedIn: #0A66C2
 Gmail: #DC3545
 Yahoo: #7B0099
 Microsoft: #0078D4

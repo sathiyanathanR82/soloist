@@ -1,49 +1,80 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NetworkService } from '../../services/network.service';
 import { CommonModule } from '@angular/common';
+import { trigger, state, style, animate, transition } from '@angular/animations';
+import { interval, delay, takeWhile, Subscription, startWith, switchMap } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule, MatBadgeModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent {
-  isAuthenticated = false;
-  currentUser: any = null;
-  showUserMenu = false;
+export class NavbarComponent implements OnInit, OnDestroy {
+  isAuthenticated$ = this.authService.isAuthenticated$.pipe(delay(0));
+  currentUser$ = this.authService.currentUser$.pipe(delay(0));
+  networkRequestsCount$ = this.networkService.networkRequestsCount$;
+  private pollingSubscription?: Subscription;
 
-  constructor(private authService: AuthService, private router: Router) {
-    this.authService.isAuthenticated$.subscribe(isAuth => {
-      this.isAuthenticated = isAuth;
-    });
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private networkService: NetworkService
+  ) { }
 
-    this.authService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-    });
+  ngOnInit(): void {
+    // Poll for new network requests every 30 seconds when authenticated
+    this.pollingSubscription = this.authService.isAuthenticated$.pipe(
+      switchMap(isAuth => {
+        if (isAuth) {
+          return interval(30000).pipe(
+            startWith(0), // Trigger immediately on login
+            switchMap(() => this.networkService.getNetworkInfo())
+          );
+        }
+        return [];
+      })
+    ).subscribe();
   }
 
-  toggleUserMenu(): void {
-    this.showUserMenu = !this.showUserMenu;
+  ngOnDestroy(): void {
+    this.pollingSubscription?.unsubscribe();
+  }
+
+  goToNetwork(): void {
+    this.router.navigate(['/network']);
   }
 
   goToProfile(): void {
     this.router.navigate(['/profile']);
-    this.showUserMenu = false;
+  }
+
+  goToHome(): void {
+    this.router.navigate(['/home']);
   }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
-    this.showUserMenu = false;
   }
 
-  getInitials(): string {
-    if (this.currentUser) {
-      return (this.currentUser.firstName?.[0] || '') + (this.currentUser.lastName?.[0] || '');
+  getInitials(user: any): string {
+    if (user) {
+      const first = user.firstName?.[0] || '';
+      const last = user.lastName?.[0] || '';
+      return (first + last).toUpperCase();
     }
     return '';
+  }
+
+
+  public capitalizeFirstLetter(string: string | undefined): string {
+    if (!string) return "";
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 }

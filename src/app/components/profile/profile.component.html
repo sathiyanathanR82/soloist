@@ -1,27 +1,113 @@
 <div class="profile-container">
+  <!-- Retrieve Account Modal (overrides everything if shown) -->
+  @if (showRestoreModal) {
+  <div class="modal-overlay">
+    <div class="modal-content restore-modal">
+      <div class="modal-header">
+        <h2>Account Deleted</h2>
+      </div>
+      <div class="modal-body text-center">
+        <mat-icon class="warning-icon">history</mat-icon>
+        <h3>Welcome back!</h3>
+        <p>Your account was previously marked for deletion. Would you like to retrieve it and restore your data, or cancel and stay logged out?</p>
+      </div>
+      <div class="modal-footer justify-center">
+        <button class="btn btn-secondary" (click)="logout()">Cancel (Logout)</button>
+        <button class="btn btn-primary" (click)="restoreAccount()" [disabled]="isLoading">
+          @if (!isLoading) { <span>Retrieve Account</span> }
+          @if (isLoading) { <span>Restoring...</span> }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteConfirmModal) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header header-danger">
+        <h2>Delete Account?</h2>
+        <button class="close-btn" (click)="cancelDelete()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete your account? This action will set your profile to a deleted state, hiding it from other users. You can retrieve it by logging back in later.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger" (click)="deleteAccount()" [disabled]="isLoading">
+          @if (!isLoading) { <span>Yes, Delete My Account</span> }
+          @if (isLoading) { <span>Deleting...</span> }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
   <!-- Header Section -->
   <div class="profile-header">
     <div class="header-background"></div>
     <div class="container">
       <div class="profile-info">
         <div class="avatar">
-          <div class="avatar-placeholder">
-            {{ currentUser?.firstName?.charAt(0) || '' }}{{ currentUser?.lastName?.charAt(0) || '' }}
+          <div class="avatar-placeholder overflow-hidden">
+            <!-- {{currentUser?.data?.profilePhoto || currentUser?.data?.avatar|| currentUser?.profilePhoto || currentUser?.firstName?.charAt(0) || '' }}{{ currentUser?.lastName?.charAt(0) || '' }} -->
+            @if(previewPhoto || currentUser?.profilePic || currentUser?.avatar || currentUser?.profilePhoto){
+            <img [src]="previewPhoto || currentUser?.profilePic || currentUser?.avatar || currentUser?.profilePhoto"
+              alt="Profile Photo" class="profile-photo">
+            } @else {
+            <span class="avatar-text">{{ getInitials().toUpperCase() }}</span>
+            }
+
+            <!-- Edit Photo Button (Only in Edit Mode) -->
+            @if (editMode) {
+            <button type="button" class="edit-photo-btn" (click)="fileInput.click()" title="Update profile picture">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                <path
+                  d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+              </svg>
+            </button>
+            <input type="file" #fileInput (change)="onPhotoSelected($event)" accept="image/*" style="display: none;">
+            }
           </div>
         </div>
 
         <div class="user-details">
-          <h1>{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h1>
+          <h1>{{ capitalizeFirstLetter(currentUser?.firstName) }} {{ capitalizeFirstLetter(currentUser?.lastName) }}
+          </h1>
           @if (currentUser?.headline) {
-            <p class="headline">
-              {{ currentUser.headline }}
-            </p>
+          <p class="headline">
+            {{ currentUser.headline }}
+          </p>
           }
-          @if (currentUser?.location) {
-            <p class="location">
-              📍 {{ currentUser.location }}
-            </p>
-          }
+          <p class="location">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" heigh="20" width="20"
+              viewBox="0 0 86.96 122.88" style="enable-background:new 0 0 86.96 122.88" xml:space="preserve">
+              <style type="text/css">
+                .st0 {
+                  fill-rule: evenodd;
+                  clip-rule: evenodd;
+                  fill: #A60D0D;
+                }
+
+                .st1 {
+                  fill-rule: evenodd;
+                  clip-rule: evenodd;
+                  fill: #EA4335;
+                }
+              </style>
+              <g>
+                <path class="st1"
+                  d="M27.81,96.57c4.42,7.04,9.2,15.57,13.92,23.86c1.75,3.06,3.33,3.52,5.43-0.11c4.56-7.91,9.04-16.1,13.76-23.74 c14.33-23.19,37.78-45.8,19.13-77.01C63.49-8.14,18.45-5.18,4.98,20.62C-10.46,50.19,13.65,74.03,27.81,96.57L27.81,96.57z" />
+                <path class="st0"
+                  d="M43.46,25.59c9.31,0,16.86,7.55,16.86,16.86s-7.55,16.86-16.86,16.86c-9.31,0-16.86-7.55-16.86-16.86 S34.15,25.59,43.46,25.59L43.46,25.59z" />
+              </g>
+            </svg>
+            <span> &nbsp;&nbsp;
+              @if (currentUser?.location) {
+              {{ currentUser.location }}
+              } @else {N/A}</span>
+          </p>
 
           <div class="profile-stats">
             <div class="stat">
@@ -37,18 +123,14 @@
 
         <div class="user-actions">
           @if (!editMode) {
-            <button
-              class="btn btn-primary"
-              (click)="toggleEditMode()">
-              ✏️ Edit Profile
-            </button>
+          <button class="btn btn-primary" (click)="toggleEditMode()">
+            ✏️ Edit Profile
+          </button>
           }
           @if (editMode) {
-            <button
-              class="btn btn-secondary"
-              (click)="cancelEdit()">
-              Cancel
-            </button>
+          <button class="btn btn-secondary" (click)="cancelEdit()">
+            Cancel
+          </button>
           }
         </div>
       </div>
@@ -57,43 +139,43 @@
 
   <!-- Alerts -->
   @if (successMessage || errorMessage) {
-    <div class="container alerts">
-      @if (successMessage) {
-        <div class="alert alert-success">
-          {{ successMessage }}
-        </div>
-      }
-      @if (errorMessage) {
-        <div class="alert alert-error">
-          {{ errorMessage }}
-        </div>
-      }
+  <div class="container alerts">
+    @if (successMessage) {
+    <div class="alert alert-success">
+      {{ successMessage }}
     </div>
+    }
+    @if (errorMessage) {
+    <div class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+    }
+  </div>
   }
 
   <!-- Profile Content -->
   <div class="container profile-content">
     <!-- View Mode -->
     @if (!editMode) {
-      <div class="profile-sections">
-        <!-- Account Information -->
-        <section class="profile-section">
-          <h2>Account Information</h2>
-          <div class="section-content">
-            <div class="info-row">
-              <span class="label">User ID:</span>
-              <span class="value">{{ currentUser?.id }}</span>
-            </div>
-            <div class="info-row">
-              <span class="label">Email Address:</span>
-              <span class="value">{{ currentUser?.email }}</span>
-            </div>
-            @if (currentUser?.createdAt) {
-              <div class="info-row">
-                <span class="label">Account Created:</span>
-                <span class="value">{{ formatDate(currentUser.createdAt) }}</span>
-              </div>
-            }
+    <div class="profile-sections">
+      <!-- Account Information -->
+      <section class="profile-section">
+        <h2>Account Information</h2>
+        <div class="section-content">
+          <div class="info-row">
+            <span class="label">User ID:</span>
+            <span class="value">{{ currentUser?.id }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Email Address:</span>
+            <span class="value">{{ currentUser?.email }}</span>
+          </div>
+          @if (currentUser?.createdAt) {
+          <div class="info-row">
+            <span class="label">Account Created:</span>
+            <span class="value">{{ formatDate(currentUser.createdAt) }}</span>
+          </div>
+          }
         </div>
       </section>
 
@@ -139,181 +221,226 @@
           <div class="info-row">
             <span class="label">Website:</span>
             @if (currentUser?.website) {
-              <span class="value">
-                <a [href]="currentUser.website" target="_blank">{{ currentUser.website }}</a>
-              </span>
+            <span class="value">
+              <a [href]="currentUser.website" target="_blank">{{ currentUser.website }}</a>
+            </span>
             }
             @if (!currentUser?.website) {
-              <span class="value">Not provided</span>
+            <span class="value">Not provided</span>
             }
           </div>
         </div>
       </section>
-</div>
-      <!-- Bio Section -->
-      @if (currentUser?.bio) {
-        <section class="profile-section">
-          <h2>About</h2>
-          <div class="section-content">
-            <p class="bio-text">{{ currentUser.bio }}</p>
+
+      <!-- Privacy Settings -->
+      <section class="profile-section">
+        <h2>Privacy Settings</h2>
+        <div class="section-content">
+          <div class="info-row">
+            <span class="label">Profile Visibility:</span>
+            <span class="value">{{ currentUser?.profileVisibility || 'All users' }}</span>
           </div>
-        </section>
-      }
+          <div class="info-row">
+            <span class="label">Email Visibility:</span>
+            <span class="value">{{ currentUser?.emailVisibility || 'All users' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Phone Visibility:</span>
+            <span class="value">{{ currentUser?.phoneVisibility || 'All users' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Nearby Search:</span>
+            <span class="value">{{ currentUser?.showInNearbySearch ? 'Enabled' : 'Disabled' }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+    <!-- Bio Section -->
+    @if (currentUser?.bio) {
+    <section class="profile-section">
+      <h2>About</h2>
+      <div class="section-content">
+        <p class="bio-text">{{ currentUser.bio }}</p>
+      </div>
+    </section>
+    }
     }
 
     <!-- Edit Mode -->
     @if (editMode) {
-      <div class="edit-form-section">
-        <h2>Edit Your Profile</h2>
+    <div class="edit-form-section">
+      <h2>Edit Your Profile</h2>
 
-        <form [formGroup]="editForm" (ngSubmit)="saveChanges()" class="edit-form">
-          <!-- Personal Information -->
-          <div class="form-section">
-            <h3>Personal Information</h3>
+      <form [formGroup]="editForm" (ngSubmit)="saveChanges()" class="edit-form">
+        <!-- Personal Information -->
+        <div class="form-section">
+          <h3><mat-icon style="vertical-align: middle; margin-right: 8px;">badge</mat-icon>Personal Information
+          </h3>
 
-            <div class="form-row form-row-2">
-              <div class="form-group">
-                <label for="firstName">First Name</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  formControlName="firstName"
-                  class="form-input">
-                @if (getFieldError('firstName')) {
-                  <small class="error">
-                    {{ getFieldError('firstName') }}
-                  </small>
-                }
-              </div>
-
-              <div class="form-group">
-                <label for="lastName">Last Name</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  formControlName="lastName"
-                  class="form-input">
-                @if (getFieldError('lastName')) {
-                  <small class="error">
-                    {{ getFieldError('lastName') }}
-                  </small>
-                }
-              </div>
-            </div>
-
-            <div class="form-row form-row-2">
-              <div class="form-group">
-                <label for="dateOfBirth">Date of Birth</label>
-                <input
-                  type="date"
-                  id="dateOfBirth"
-                  formControlName="dateOfBirth"
-                  class="form-input">
-              </div>
-
-              <div class="form-group">
-                <label for="gender">Gender</label>
-                <select id="gender" formControlName="gender" class="form-input">
-                  <option value="">Select your gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                  <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-row form-row-2">
-              <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  formControlName="phone"
-                  class="form-input">
-                @if (getFieldError('phone')) {
-                  <small class="error">
-                    {{ getFieldError('phone') }}
-                  </small>
-                }
-              </div>
-
-              <div class="form-group">
-                <label for="location">Location</label>
-                <input
-                  type="text"
-                  id="location"
-                  formControlName="location"
-                  class="form-input">
-              </div>
-            </div>
-          </div>
-
-          <!-- Professional Information -->
-          <div class="form-section">
-            <h3>Professional Information</h3>
-
+          <div class="form-row form-row-2">
             <div class="form-group">
-              <label for="headline">Professional Headline</label>
-              <input
-                type="text"
-                id="headline"
-                formControlName="headline"
-                class="form-input">
-            </div>
-
-            <div class="form-group">
-              <label for="bio">Bio</label>
-              <textarea
-                id="bio"
-                formControlName="bio"
-                rows="4"
-                class="form-input"></textarea>
-              <small class="hint">
-                {{ (editForm.get('bio')?.value || '').length }}/500 characters
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" formControlName="firstName" class="form-input">
+              @if (getFieldError('firstName')) {
+              <small class="error">
+                {{ getFieldError('firstName') }}
               </small>
-              @if (getFieldError('bio')) {
-                <small class="error">
-                  {{ getFieldError('bio') }}
-                </small>
               }
             </div>
 
             <div class="form-group">
-              <label for="website">Website URL</label>
-              <input
-                type="text"
-                id="website"
-                formControlName="website"
-                class="form-input">
-              <small class="hint">Optional: Your personal website or portfolio</small>
-              @if (getFieldError('website')) {
-                <small class="error">
-                  {{ getFieldError('website') }}
-                </small>
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" formControlName="lastName" class="form-input">
+              @if (getFieldError('lastName')) {
+              <small class="error">
+                {{ getFieldError('lastName') }}
+              </small>
               }
             </div>
           </div>
 
-          <!-- Form Actions -->
-          <div class="form-actions">
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label for="dateOfBirth">Date of Birth</label>
+              <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label for="gender">Gender</label>
+              <select id="gender" formControlName="gender" class="form-input">
+                <option value="">Select your gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row form-row-2">
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" formControlName="phone" class="form-input">
+              @if (getFieldError('phone')) {
+              <small class="error">
+                {{ getFieldError('phone') }}
+              </small>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" id="location" formControlName="location" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Information -->
+        <div class="form-section">
+          <h3><mat-icon style="vertical-align: middle; margin-right: 8px;">home_repair_service</mat-icon>Professional
+            Information</h3>
+
+          <div class="form-group">
+            <label for="headline">Professional Headline</label>
+            <input type="text" id="headline" formControlName="headline" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <textarea id="bio" formControlName="bio" rows="4" class="form-input"></textarea>
+            <small class="hint">
+              {{ (editForm.get('bio')?.value || '').length }}/500 characters
+            </small>
+            @if (getFieldError('bio')) {
+            <small class="error">
+              {{ getFieldError('bio') }}
+            </small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="website">Website URL</label>
+            <input type="text" id="website" formControlName="website" class="form-input">
+            <small class="hint">Optional: Your personal website or portfolio</small>
+            @if (getFieldError('website')) {
+            <small class="error">
+              {{ getFieldError('website') }}
+            </small>
+            }
+          </div>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="form-section privacy-section">
+          <h3><mat-icon style="vertical-align: middle; margin-right: 8px;">lock</mat-icon> Privacy Settings</h3>
+          <p class="section-hint" style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 20px;">Control your
+            information visibility and search presence.</p>
+
+          <div class="form-row form-row-2">
+            <!-- Profile Visibility -->
+            <div class="form-group">
+              <label for="profileVisibility">Profile Visibility</label>
+              <select id="profileVisibility" formControlName="profileVisibility" class="form-input">
+                <option value="All users">All users</option>
+                <option value="Only my network">Only my network</option>
+                <option value="Only me">Only me</option>
+              </select>
+            </div>
+
+            <!-- Nearby Search Toggle -->
+            <div class="form-group checkbox-group" style="padding-top: 25px;">
+              <input type="checkbox" id="showInNearbySearch" formControlName="showInNearbySearch"
+                class="checkbox-input">
+              <label for="showInNearbySearch" class="checkbox-label" style="font-weight: 500;">
+                Show me in Nearby
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row form-row-2">
+            <!-- Email Visibility -->
+            <div class="form-group">
+              <label for="emailVisibility">Email Visibility</label>
+              <select id="emailVisibility" formControlName="emailVisibility" class="form-input">
+                <option value="All users">All users</option>
+                <option value="Only my network">Only my network</option>
+                <option value="Only me">Only me</option>
+              </select>
+            </div>
+
+            <!-- Phone Visibility -->
+            <div class="form-group">
+              <label for="phoneVisibility">Phone Visibility</label>
+              <select id="phoneVisibility" formControlName="phoneVisibility" class="form-input">
+                <option value="All users">All users</option>
+                <option value="Only my network">Only my network</option>
+                <option value="Only me">Only me</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions" style="justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn-danger-outline" (click)="confirmDeleteAccount()">
+            Delete Account
+          </button>
+          <div style="display: flex; gap: 10px;">
             <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
               Cancel
             </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-              [disabled]="editForm.invalid || isLoading">
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isLoading">
               @if (!isLoading) {
-                <span>Save Changes</span>
+              <span>Save Changes</span>
               }
               @if (isLoading) {
-                <span>Saving...</span>
+              <span>Saving...</span>
               }
             </button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
+    </div>
     }
   </div>
 </div>

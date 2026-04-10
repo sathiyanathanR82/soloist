@@ -1,3 +1,4 @@
+@if (!isStandalone) {
 <div class="modal-overlay" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
@@ -15,3 +16,22 @@
     </div>
   </div>
 </div>
+} @else {
+<div class="terms-container">
+  <div class="content-card">
+    <header>
+      <h1>Terms of Service</h1>
+      <p class="last-updated">Last Updated: March 6, 2026</p>
+    </header>
+
+    <div class="terms-body">
+      <div [innerHTML]="termsContent"></div>
+    </div>
+
+    <footer>
+      <button (click)="goBack()" class="btn-back">Back to Login</button>
+      <button (click)="agreeToTerms()" class="btn-agree">I Agree & Continue</button>
+    </footer>
+  </div>
+</div>
+}

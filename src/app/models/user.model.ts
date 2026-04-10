@@ -7,10 +7,13 @@ export interface SocialLoginProvider {
 }
 
 export interface User {
-  id: string;
+  data?: any;
+  id?: string;
+  uid?: string;
   email: string;
   firstName: string;
   lastName: string;
+  profilePic?: string;
   profilePhoto?: string;
   headline?: string;
   bio?: string;
@@ -19,8 +22,23 @@ export interface User {
   dateOfBirth?: string;
   gender?: string;
   website?: string;
-  linkedinProfile?: string;
   facebookProfile?: string;
+  registerUser?: boolean;
+  latitude?: number;
+  longitude?: number;
+  network?: {
+    myNetwork: string[];
+    request: string[];
+    block: string[];
+    removalRequest: string[];
+  };
+  lastLogin?: Date | string;
+  isOnline?: boolean;
+  profileVisibility?: 'All users' | 'Only my network' | 'Only me';
+  emailVisibility?: 'All users' | 'Only my network' | 'Only me';
+  phoneVisibility?: 'All users' | 'Only my network' | 'Only me';
+  showInNearbySearch?: boolean;
+  deletion?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -37,11 +55,16 @@ export interface RegistrationFormData {
   dateOfBirth?: string;
   gender?: string;
   agreedToTerms: boolean;
+  profileVisibility?: string;
+  emailVisibility?: string;
+  phoneVisibility?: string;
+  showInNearbySearch?: boolean;
 }
 
 export interface AuthResponse {
   success: boolean;
   message: string;
   user?: User;
+  data?: any;
   token?: string;
 }

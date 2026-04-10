@@ -1,0 +1,81 @@
+<div class="network-container container" @fadeInUp>
+  <div class="network-header">
+    <h1>My Network</h1>
+    <p>Manage your professional connections and network requests.</p>
+  </div>
+
+  <!-- Pending Requests Section -->
+  <section class="network-section" *ngIf="pendingRequests.length > 0">
+    <div class="section-header">
+      <h2>Pending Requests <span class="badge">{{ pendingRequests.length }}</span></h2>
+    </div>
+    <div class="user-grid">
+      <div class="user-card" *ngFor="let user of pendingRequests" @fadeInUp>
+        <div class="card-avatar">
+          <img *ngIf="user.profilePic" [src]="user.profilePic" [alt]="user.firstName">
+          <div *ngIf="!user.profilePic" class="avatar-placeholder">{{ getInitials(user) }}</div>
+        </div>
+        <div class="card-info">
+          <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+          <p class="headline">{{ user.headline || 'Member since ' + (user.createdAt | date) }}</p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-approve" (click)="approveRequest(user.uid || user.id!)">Approve</button>
+          <button class="btn-reject" (click)="rejectRequest(user.uid || user.id!)">Reject</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- My Network Section -->
+  <section class="network-section">
+    <div class="section-header">
+      <h2>My Connections <span class="badge" *ngIf="myNetwork.length > 0">{{ myNetwork.length }}</span></h2>
+    </div>
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your network...</p>
+    </div>
+    <div class="user-grid" *ngIf="!loading && myNetwork.length > 0">
+      <div class="user-card" *ngFor="let user of myNetwork" @fadeInUp>
+        <div class="card-avatar">
+          <img *ngIf="user.profilePic" [src]="user.profilePic" [alt]="user.firstName">
+          <div *ngIf="!user.profilePic" class="avatar-placeholder">{{ getInitials(user) }}</div>
+        </div>
+        <div class="card-info">
+          <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+          <p class="headline">{{ user.headline || 'Connected' }}</p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-message">Message</button>
+        </div>
+      </div>
+    </div>
+    <div class="empty-state" *ngIf="!loading && myNetwork.length === 0">
+      <div class="empty-icon">🤝</div>
+      <p>You haven't added anyone to your network yet.</p>
+    </div>
+  </section>
+
+  <!-- Suggestions Section -->
+  <section class="network-section" *ngIf="suggestions.length > 0">
+    <div class="section-header">
+      <h2>People You May Know</h2>
+    </div>
+    <div class="user-grid">
+      <div class="user-card suggestion" *ngFor="let user of suggestions" @fadeInUp>
+        <div class="card-avatar">
+          <img *ngIf="user.profilePic" [src]="user.profilePic" [alt]="user.firstName">
+          <div *ngIf="!user.profilePic" class="avatar-placeholder">{{ getInitials(user) }}</div>
+        </div>
+        <div class="card-info">
+          <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+          <p class="headline small">{{ user.headline || 'Potential Connection' }}</p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-connect" (click)="sendRequest(user.uid || user.id!)">Connect</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

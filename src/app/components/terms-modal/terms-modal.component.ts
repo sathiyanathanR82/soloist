@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-terms-modal',
@@ -8,9 +9,22 @@ import { CommonModule } from '@angular/common';
   templateUrl: './terms-modal.component.html',
   styleUrls: ['./terms-modal.component.scss']
 })
-export class TermsModalComponent {
+export class TermsModalComponent implements OnInit {
   @Output() onClose = new EventEmitter<void>();
   @Output() onAgree = new EventEmitter<void>();
+
+  isStandalone = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Check if the component is being used as a route or as a child component
+    this.isStandalone = this.route.snapshot.url.length > 0 && 
+                        this.route.snapshot.url[0].path === 'terms-of-service';
+  }
 
   termsContent = `
     <h3>Terms and Conditions</h3>
@@ -20,7 +34,7 @@ export class TermsModalComponent {
     <p>By accessing and using this application, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
 
     <h4>2. User Accounts and Registration</h4>
-    <p>When you create an account with us through social login providers (Facebook, LinkedIn, Gmail, Yahoo, or Microsoft), you must provide accurate, complete, and current information. You agree to maintain the confidentiality of your password and are fully responsible for all activities that occur under your account.</p>
+    <p>When you create an account with us through social login providers (Facebook, Gmail, Yahoo, or Microsoft), you must provide accurate, complete, and current information. You agree to maintain the confidentiality of your password and are fully responsible for all activities that occur under your account.</p>
 
     <h4>3. Use License</h4>
     <p>Permission is granted to temporarily download one copy of the materials (information or software) on Soloist's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:</p>
@@ -66,5 +80,16 @@ export class TermsModalComponent {
 
   agreeToTerms(): void {
     this.onAgree.emit();
+    if (this.isStandalone) {
+      this.router.navigate(['/registration']);
+    }
+  }
+
+  goBack(): void {
+    if (this.isStandalone) {
+      this.router.navigate(['/login']);
+    } else {
+      this.closeModal();
+    }
   }
 }

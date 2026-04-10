@@ -1,7 +1,7 @@
 .navbar {
   background: rgba(0, 0, 0, 0.75);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  height: 60px;
+  height: 72px;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -14,83 +14,190 @@
   }
 
   .navbar-brand {
+    position: relative;
+    height: 100%;
+    padding: .25rem 0;
+
     h1 {
       margin: 0;
       color: #fff;
       font-size: 24px;
       font-weight: 700;
     }
+
+    .nav-logo {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      padding: 4px 0;
+    }
+  }
+
+  .navbar-menu {
+    height: 100%;
+    display: flex;
+    align-items: center;
   }
 
   .user-menu {
-    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
 
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #1877f2;
-      color: white;
-      font-weight: 600;
+    .navbar-actions {
       display: flex;
       align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      border: none;
-      transition: background 0.3s ease;
+      gap: 8px;
+      height: 100%;
 
-      &:hover {
-        background: #155db5;
+      .nav-link-btn {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0 16px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+
+        mat-icon {
+          font-size: 20px;
+          height: 20px;
+          width: 20px;
+          color: inherit;
+          overflow: visible;
+          position: relative;
+        }
+
+        &:hover {
+          color: white;
+        }
+
+        &.active {
+          color: white;
+          background: rgba(255, 255, 255, 0.12);
+        }
       }
 
-      .avatar-text {
-        font-size: 14px;
+      .nav-divider {
+        width: 1px;
+        height: 24px;
+        background: rgba(255, 255, 255, 0.15);
+        margin: 0 8px;
+      }
+
+      .profile-avatar-small {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: #1877f2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .avatar-img-small {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .avatar-initials-small {
+          font-size: 10px;
+          color: white;
+          font-weight: 700;
+        }
+      }
+
+      .nav-icon-btn {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: white;
+        }
+
+        &.logout-btn:hover {
+          color: #ef4444;
+          background: rgba(239, 68, 68, 0.1);
+        }
+
+        mat-icon {
+          font-size: 22px;
+          height: 22px;
+          width: 22px;
+          color: inherit;
+        }
       }
     }
 
-    .dropdown-menu {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      min-width: 150px;
-      margin-top: 8px;
-      overflow: hidden;
+    .user-details {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 100%;
 
-      hr {
-        margin: 0;
-        border: none;
-        border-top: 1px solid #e5e7eb;
-      }
+      .user-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
 
-      .menu-item {
-        width: 100%;
-        padding: 12px 16px;
-        background: transparent;
-        border: none;
-        text-align: left;
-        cursor: pointer;
-        font-size: 14px;
-        color: #333;
-        transition: background 0.2s ease;
+        .welcome-text {
+          font-size: 14px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.7);
+          line-height: 1;
 
-        &:hover {
-          background: #f0f2f5;
+          i {
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1;
+          }
+
+          .user-name {
+            font-size: 14px;
+            font-weight: 700;
+            margin-left: .5rem;
+            color: white;
+          }
         }
 
-        &.logout:hover {
-          background: #fee5e5;
-          color: #d32f2f;
-        }
-
-        span {
-          display: flex;
-          align-items: center;
-          gap: 8px;
+        .last-login {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.7);
+          text-align: end;
         }
       }
+    }
+
+    .mat-badge-content.mat-badge-active {
+      background: rgb(180, 10, 10);
+      border: 1px solid white;
+      border-radius: 50%;
+      padding: 3px;
+      color: #fff;
+      margin-left: 4px;
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.4);
     }
   }
 }

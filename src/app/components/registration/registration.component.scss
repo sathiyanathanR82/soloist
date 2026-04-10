@@ -1,25 +1,28 @@
 .registration-container {
   min-height: calc(100vh - 60px);
-  background: #f0f2f5;
+  background: var(--bg-color);
   padding: 40px 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.3s ease;
 }
 
 .registration-card {
-  background: white;
+  background: var(--surface-color);
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px var(--shadow-color);
   max-width: 700px;
   width: 100%;
   overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
   .card-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 40px 30px;
     text-align: center;
+    padding-bottom: 80px;
 
     h1 {
       margin: 0 0 10px 0;
@@ -31,6 +34,74 @@
       margin: 0;
       font-size: 16px;
       opacity: 0.95;
+    }
+  }
+}
+
+.profile-photo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -70px;
+  position: relative;
+  z-index: 10;
+
+  .photo-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .profile-photo {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    background-color: white;
+  }
+
+  .profile-photo-placeholder {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .edit-photo-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #667eea;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #5568d3;
+      transform: scale(1.05);
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
     }
   }
 }
@@ -63,17 +134,35 @@
     h3 {
       font-size: 16px;
       font-weight: 600;
-      color: #1a1a1a;
+      color: var(--text-primary);
       margin-bottom: 20px;
       padding-bottom: 12px;
-      border-bottom: 2px solid #f0f2f5;
+      border-bottom: 2px solid var(--bg-color);
+      transition: color 0.3s ease, border-color 0.3s ease;
+    }
+
+    &.privacy-section {
+      background: var(--bg-hover, #f8fafc);
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color, #e2e8f0);
+      margin-top: 20px;
+
+      h3 {
+        border-bottom: none;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        color: #667eea;
+      }
     }
 
     &.terms-section {
-      background: #fafbfc;
+      background: var(--bg-color);
       padding: 16px;
       border-radius: 8px;
       margin-bottom: 20px;
+      transition: background-color 0.3s ease;
     }
   }
 
@@ -97,11 +186,22 @@
     display: flex;
     flex-direction: column;
 
+    &.checkbox-group {
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+
+      .checkbox-label {
+        margin-bottom: 0;
+      }
+    }
+
     label {
       font-weight: 600;
       margin-bottom: 8px;
-      color: #1a1a1a;
+      color: var(--text-primary);
       font-size: 14px;
+      transition: color 0.3s ease;
 
       .required {
         color: #d32f2f;
@@ -181,9 +281,10 @@
 
     .checkbox-label {
       font-size: 14px;
-      color: #333;
+      color: var(--text-primary);
       cursor: pointer;
       line-height: 1.5;
+      transition: color 0.3s ease;
 
       .link-btn {
         background: none;

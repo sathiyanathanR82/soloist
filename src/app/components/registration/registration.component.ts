@@ -1,14 +1,34 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { TermsModalComponent } from '../terms-modal/terms-modal.component';
+import { MatIcon } from '@angular/material/icon';
+
+export function minimumAgeValidator(minAge: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) {
+      return null;
+    }
+    const today = new Date();
+    const dob = new Date(control.value);
+
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    return age < minAge ? { minimumAge: { requiredValue: minAge, actualValue: age } } : null;
+  };
+}
 
 @Component({
   selector: 'app-registration',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TermsModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, TermsModalComponent, MatIcon],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
@@ -21,6 +41,11 @@ export class RegistrationComponent implements OnInit {
   successMessage = '';
   showTermsModal = false;
   agreedToTerms = false;
+  previewPhoto: string | null = null;
+  selectedPhotoFile: File | null = null;
+  maxDate: string = '';
+  latitude: number | null = null;
+  longitude: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -29,30 +54,81 @@ export class RegistrationComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Check if user is authenticated
-    if (!this.authService.isAuthenticated()) {
+    const today = new Date();
+    today.setFullYear(today.getFullYear() - 13);
+    this.maxDate = today.toISOString().split('T')[0];
+
+    // Must be authenticated (token present) to reach this page
+    if (!this.authService.getToken()) {
       this.router.navigate(['/login']);
       return;
     }
 
     this.currentUser = this.authService.getCurrentUser();
-    this.initializeForm();
+
+    // If user data isn't cached yet, fetch it first
+    if (!this.currentUser) {
+      this.isLoading = true;
+      this.authService.fetchCurrentUser().subscribe({
+        next: (user) => {
+          this.currentUser = user;
+          console.log('Successfully logged in. User details:', this.currentUser);
+          this.initializeForm();
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.router.navigate(['/login']);
+        }
+      });
+    } else {
+      console.log('Successfully logged in. User details:', this.currentUser);
+      this.initializeForm();
+    }
+
+    this.getUserLocation();
+  }
+
+  getUserLocation(): void {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.latitude = position.coords.latitude;
+          this.longitude = position.coords.longitude;
+          console.log('Location captured:', this.latitude, this.longitude);
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+        }
+      );
+    }
   }
 
   initializeForm(): void {
+
+    const userData = this.currentUser;
+
+    if (!this.previewPhoto) {
+      this.previewPhoto = userData.profilePic;
+    }
+
     this.registrationForm = this.fb.group({
-      email: [{ value: this.currentUser?.email || '', disabled: true }, Validators.required],
-      userId: [{ value: this.currentUser?.id || '', disabled: true }, Validators.required],
-      firstName: [this.currentUser?.firstName || '', [Validators.required, Validators.minLength(2)]],
-      lastName: [this.currentUser?.lastName || '', [Validators.required, Validators.minLength(2)]],
-      phone: [this.currentUser?.phone || '', [Validators.pattern(/^[0-9\-\+\(\)\s]*$/)]],
-      dateOfBirth: [this.currentUser?.dateOfBirth || '', Validators.required],
-      gender: [this.currentUser?.gender || '', Validators.required],
-      location: [this.currentUser?.location || ''],
-      headline: [this.currentUser?.headline || ''],
-      bio: [this.currentUser?.bio || '', Validators.maxLength(500)],
-      website: [this.currentUser?.website || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]],
-      agreedToTerms: [false, Validators.requiredTrue]
+      email: [{ value: userData?.email || '', disabled: true }],
+      userId: [{ value: userData?.id || userData?._id || '', disabled: true }],
+      firstName: [userData?.firstName || '', [Validators.required, Validators.minLength(1)]],
+      lastName: [userData?.lastName || '', [Validators.required, Validators.minLength(1)]],
+      phone: [userData?.phone || '', [Validators.required, Validators.pattern(/^[0-9\-\+\(\)\s]*$/)]],
+      dateOfBirth: [this.formatDateForInput(userData?.dateOfBirth) || '', [Validators.required, minimumAgeValidator(13)]],
+      gender: [userData?.gender || '', Validators.required],
+      location: [userData?.location || ''],
+      headline: [userData?.headline || ''],
+      bio: [userData?.bio || '', Validators.maxLength(500)],
+      website: [userData?.website || '', [Validators.pattern(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)]],
+      agreedToTerms: [false, Validators.requiredTrue],
+      profileVisibility: [userData?.profileVisibility || 'All users'],
+      emailVisibility: [userData?.emailVisibility || 'All users'],
+      phoneVisibility: [userData?.phoneVisibility || 'All users'],
+      showInNearbySearch: [userData?.showInNearbySearch !== undefined ? userData.showInNearbySearch : true]
     });
   }
 
@@ -95,10 +171,23 @@ export class RegistrationComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const formData = this.registrationForm.getRawValue();
-    delete formData.agreedToTerms;
+    // Construct form data for registration
+    const registrationData: any = {
+      ...this.registrationForm.getRawValue(),
+      registerUser: true,
+      latitude: this.latitude,
+      longitude: this.longitude
+    };
 
-    this.authService.registerUser(formData).subscribe({
+    // Include profile photo if it exists (either new or existing)
+    if (this.previewPhoto) {
+      registrationData.profilePic = this.previewPhoto;
+    }
+
+    // Clean up unnecessary fields for the backend
+    delete registrationData.agreedToTerms;
+
+    this.authService.registerUser(registrationData).subscribe({
       next: (response) => {
         if (response.success) {
           this.successMessage = 'Registration completed successfully! Redirecting to profile...';
@@ -111,7 +200,7 @@ export class RegistrationComponent implements OnInit {
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = 'An error occurred during registration. Please try again.';
+        this.errorMessage = error.message || 'An error occurred during registration. Please try again.';
         console.error('Registration error:', error);
       },
       complete: () => {
@@ -120,12 +209,37 @@ export class RegistrationComponent implements OnInit {
     });
   }
 
+
   resetForm(): void {
     this.registrationForm.reset();
     this.agreedToTerms = false;
     this.errorMessage = '';
     this.successMessage = '';
+    this.previewPhoto = null;
+    this.selectedPhotoFile = null;
     this.initializeForm();
+  }
+
+  onPhotoSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedPhotoFile = file;
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.previewPhoto = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  formatDateForInput(date: string | Date | undefined): string {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   getFieldError(fieldName: string): string {
@@ -145,6 +259,9 @@ export class RegistrationComponent implements OnInit {
     }
     if (field.errors['pattern']) {
       return `${fieldName} format is invalid`;
+    }
+    if (field.errors['minimumAge']) {
+      return `You must be at least ${field.errors['minimumAge'].requiredValue} years old`;
     }
 
     return 'Invalid input';

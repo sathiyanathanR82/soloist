@@ -5,6 +5,7 @@ secret_config.json
 # Ignore entire folders (end with a slash)
 node_modules/
 temp/
+dist/
 
 # Ignore all files with a certain extension
 *.log

@@ -20,7 +20,6 @@ App (Root)
 
 Displays social login options for:
 - Facebook (#1877F2)
-- LinkedIn (#0A66C2)
 - Gmail (#DC3545)
 - Yahoo (#7B0099)
 - Microsoft (#0078D4)
@@ -63,7 +62,7 @@ Optional Fields:
 - Headline
 - Bio (max 500 chars)
 - Website (URL validation)
-- Linked-in/Facebook profiles
+- Facebook profile link
 ```
 
 **Validation Rules**:
@@ -178,7 +177,6 @@ interface User {
   dateOfBirth?: string;         // Date string
   gender?: string;              // Gender selection
   website?: string;             // Portfolio/personal site
-  linkedinProfile?: string;
   facebookProfile?: string;
   createdAt?: Date;             // Registration timestamp
   updatedAt?: Date;             // Last update timestamp
@@ -240,7 +238,6 @@ interface RegistrationFormData {
 - Primary Blue: `#667eea`
 - Purple: `#764ba2`
 - Facebook Blue: `#1877f2`
-- LinkedIn Blue: `#0A66C2`
 - Gmail Red: `#DC3545`
 - Yahoo Purple: `#7B0099`
 - Microsoft Blue: `#0078D4`

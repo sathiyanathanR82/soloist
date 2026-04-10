@@ -1,29 +1,60 @@
 <nav class="navbar">
   <div class="container navbar-container">
-    <div class="navbar-brand">
-      <h1>Soloist</h1>
+    <div class="navbar-brand position-relative h-100">
+      <a href="/home">
+        <img src="assets/images/soloist_h.png" alt="Soloist" class="nav-logo">
+      </a>
+      <!-- <h1>Soloist</h1> -->
     </div>
 
-    @if (isAuthenticated) {
-      <div class="navbar-menu">
-        <div class="user-menu">
-          <button class="user-avatar" (click)="toggleUserMenu()">
-            <span class="avatar-text">{{ getInitials() }}</span>
+    @if (isAuthenticated$ | async) {
+    <div class="navbar-menu">
+      <div class="user-menu">
+        @if (currentUser$ | async; as user) {
+        <div class="navbar-actions">
+          <button (click)="goToHome()" class="nav-link-btn nobtnhovermove" title="Home">
+            <mat-icon>home</mat-icon>
+            <span>Home</span>
           </button>
 
-          @if (showUserMenu) {
-            <div class="dropdown-menu" [@fadeInOut]>
-          <button (click)="goToProfile()" class="menu-item">
-            <span>👤 My Profile</span>
+          <button (click)="goToNetwork()" class="nav-link-btn nobtnhovermove" title="My Network">
+            <mat-icon>people</mat-icon>
+            <div [matBadge]="(networkRequestsCount$ | async) || 0" matBadgeColor="warn" matBadgeOverlap="false"
+              class="demo-section" [matBadgeHidden]="((networkRequestsCount$ | async) || 0) === 0">
+              <span>
+                Network</span>
+            </div>
           </button>
-          <hr>
-            <button (click)="logout()" class="menu-item logout">
-              <span>🚪 Logout</span>
-            </button>
+
+          <button (click)="goToProfile()" class="nav-link-btn nobtnhovermove" title="My Profile">
+            <mat-icon>account_circle</mat-icon>
+            <span>Profile</span>
+          </button>
+          <div class="nav-divider"></div>
+          <div class="user-details">
+            <div class="profile-avatar-small">
+              @if(user?.profilePic){
+              <img [src]="user?.profilePic" alt="Profile" class="avatar-img-small">
+              } @else {
+              <span class="avatar-initials-small">{{ getInitials(user) }}</span>
+              }
+            </div>
+            <div class="user-info">
+              <div class="welcome-text"><i>Welcome!</i> <span class="user-name">{{
+                  capitalizeFirstLetter(user?.firstName) }}</span></div>
+              <div class="last-login">{{ user?.lastLogin | date:'short' }}</div>
+            </div>
+
           </div>
-          }
+          <div class="nav-divider"></div>
+
+          <button (click)="logout()" class="nav-icon-btn logout-btn nobtnhovermove" title="Logout">
+            <mat-icon>logout</mat-icon>
+          </button>
         </div>
+        }
       </div>
+    </div>
     }
   </div>
 </nav>
