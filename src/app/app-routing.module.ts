@@ -7,17 +7,20 @@ import { HomeComponent } from './components/home/home.component';
 import { PrivacyPolicyComponent } from './components/privacy-policy/privacy-policy.component';
 import { UserDataDeletionComponent } from './components/user-data-deletion/user-data-deletion.component';
 import { NetworkComponent } from './components/network/network.component';
+import { TermsModalComponent } from './components/terms-modal/terms-modal.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
-  { path: 'registration', component: RegistrationComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'network', component: NetworkComponent },
+  { path: 'registration', component: RegistrationComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'network', component: NetworkComponent, canActivate: [authGuard] },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
+  { path: 'terms-of-service', component: TermsModalComponent },
   { path: 'user-data-deletion', component: UserDataDeletionComponent },
-  { path: '**', redirectTo: 'home' }
+  { path: '**', redirectTo: 'login' }
 ];
 
 @NgModule({

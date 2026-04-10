@@ -8,7 +8,7 @@ import { User, AuthResponse } from '../models/user.model';
   providedIn: 'root'
 })
 export class NetworkService {
-  private readonly API_URL = `${environment.apiUrl}/users`;
+  private readonly API_URL = `${environment.apiUrl || 'http://localhost:3000/api'}/users`;
 
   private networkRequestsSubject = new BehaviorSubject<number>(0);
   public networkRequestsCount$ = this.networkRequestsSubject.asObservable();

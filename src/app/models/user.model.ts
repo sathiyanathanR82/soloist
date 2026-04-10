@@ -38,6 +38,7 @@ export interface User {
   emailVisibility?: 'All users' | 'Only my network' | 'Only me';
   phoneVisibility?: 'All users' | 'Only my network' | 'Only me';
   showInNearbySearch?: boolean;
+  deletion?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

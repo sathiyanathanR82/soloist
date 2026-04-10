@@ -1,5 +1,6 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-terms-modal',
@@ -8,9 +9,22 @@ import { CommonModule } from '@angular/common';
   templateUrl: './terms-modal.component.html',
   styleUrls: ['./terms-modal.component.scss']
 })
-export class TermsModalComponent {
+export class TermsModalComponent implements OnInit {
   @Output() onClose = new EventEmitter<void>();
   @Output() onAgree = new EventEmitter<void>();
+
+  isStandalone = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Check if the component is being used as a route or as a child component
+    this.isStandalone = this.route.snapshot.url.length > 0 && 
+                        this.route.snapshot.url[0].path === 'terms-of-service';
+  }
 
   termsContent = `
     <h3>Terms and Conditions</h3>
@@ -66,5 +80,16 @@ export class TermsModalComponent {
 
   agreeToTerms(): void {
     this.onAgree.emit();
+    if (this.isStandalone) {
+      this.router.navigate(['/registration']);
+    }
+  }
+
+  goBack(): void {
+    if (this.isStandalone) {
+      this.router.navigate(['/login']);
+    } else {
+      this.closeModal();
+    }
   }
 }

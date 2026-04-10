@@ -22,6 +22,8 @@ export class ProfileComponent implements OnInit {
   errorMessage = '';
   previewPhoto: string | null = null;
   selectedPhotoFile: File | null = null;
+  showRestoreModal = false;
+  showDeleteConfirmModal = false;
 
   constructor(
     private authService: AuthService,
@@ -44,11 +46,16 @@ export class ProfileComponent implements OnInit {
           this.currentUser = userData;
           this.initializeEditForm();
           this.isLoading = false;
-          // Redirect based on registration status
-          if (userData.registerUser === true) {
-            this.router.navigate(['/home']);
+          
+          if (userData.deletion === true) {
+            this.showRestoreModal = true;
           } else {
-            this.router.navigate(['/registration']);
+            // Redirect based on registration status
+            if (userData.registerUser === true) {
+              this.router.navigate(['/home']);
+            } else {
+              this.router.navigate(['/registration']);
+            }
           }
         },
         error: () => {
@@ -71,6 +78,11 @@ export class ProfileComponent implements OnInit {
     // Subscribe to live user updates
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
+      
+      if (this.currentUser && this.currentUser.deletion === true) {
+        this.showRestoreModal = true;
+      }
+      
       // Only re-initialize if we are NOT currently in the middle of a save operation
       // to prevent synchronous infinite loops/redundant form resets.
       if (this.editMode && !this.isSaving) {
@@ -185,6 +197,58 @@ export class ProfileComponent implements OnInit {
     this.editMode = false;
     this.initializeEditForm();
     this.errorMessage = '';
+  }
+
+  confirmDeleteAccount(): void {
+    this.showDeleteConfirmModal = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirmModal = false;
+  }
+
+  deleteAccount(): void {
+    if (!this.currentUser) return;
+    const userId = this.currentUser.uid || this.currentUser.id || this.currentUser._id;
+    
+    this.isLoading = true;
+    this.authService.deleteAccount(userId).subscribe({
+      next: () => {
+        // Assume authService.deleteAccount does clearSession() and redirect
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = err.message || 'Failed to delete account';
+        this.isLoading = false;
+        this.showDeleteConfirmModal = false;
+      }
+    });
+  }
+
+  restoreAccount(): void {
+    this.isLoading = true;
+    this.authService.updateUserProfile({ deletion: false }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.showRestoreModal = false;
+          // After restore, redirect normally
+          if (this.currentUser?.registerUser) {
+            this.router.navigate(['/home']);
+          } else {
+            this.router.navigate(['/registration']);
+          }
+        } else {
+          this.errorMessage = response.message || 'Failed to restore account';
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = err.message || 'Error restoring account';
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   logout(): void {

@@ -1,4 +1,48 @@
 <div class="profile-container">
+  <!-- Retrieve Account Modal (overrides everything if shown) -->
+  @if (showRestoreModal) {
+  <div class="modal-overlay">
+    <div class="modal-content restore-modal">
+      <div class="modal-header">
+        <h2>Account Deleted</h2>
+      </div>
+      <div class="modal-body text-center">
+        <mat-icon class="warning-icon">history</mat-icon>
+        <h3>Welcome back!</h3>
+        <p>Your account was previously marked for deletion. Would you like to retrieve it and restore your data, or cancel and stay logged out?</p>
+      </div>
+      <div class="modal-footer justify-center">
+        <button class="btn btn-secondary" (click)="logout()">Cancel (Logout)</button>
+        <button class="btn btn-primary" (click)="restoreAccount()" [disabled]="isLoading">
+          @if (!isLoading) { <span>Retrieve Account</span> }
+          @if (isLoading) { <span>Restoring...</span> }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Delete Confirmation Modal -->
+  @if (showDeleteConfirmModal) {
+  <div class="modal-overlay" (click)="cancelDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header header-danger">
+        <h2>Delete Account?</h2>
+        <button class="close-btn" (click)="cancelDelete()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete your account? This action will set your profile to a deleted state, hiding it from other users. You can retrieve it by logging back in later.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger" (click)="deleteAccount()" [disabled]="isLoading">
+          @if (!isLoading) { <span>Yes, Delete My Account</span> }
+          @if (isLoading) { <span>Deleting...</span> }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
   <!-- Header Section -->
   <div class="profile-header">
     <div class="header-background"></div>
@@ -377,18 +421,23 @@
         </div>
 
         <!-- Form Actions -->
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
-            Cancel
+        <div class="form-actions" style="justify-content: space-between; align-items: center;">
+          <button type="button" class="btn btn-danger-outline" (click)="confirmDeleteAccount()">
+            Delete Account
           </button>
-          <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isLoading">
-            @if (!isLoading) {
-            <span>Save Changes</span>
-            }
-            @if (isLoading) {
-            <span>Saving...</span>
-            }
-          </button>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isLoading">
+              @if (!isLoading) {
+              <span>Save Changes</span>
+              }
+              @if (isLoading) {
+              <span>Saving...</span>
+              }
+            </button>
+          </div>
         </div>
       </form>
     </div>

@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = environment.apiUrl; // http://localhost:3000/api
+  private readonly API_URL = environment.apiUrl || 'http://localhost:3000/api'; // http://localhost:3000/api
   private readonly TOKEN_KEY = 'token';
   private readonly USER_KEY = 'currentUser';
 
@@ -151,6 +151,19 @@ export class AuthService {
   }
 
   // ─── User Management ───────────────────────────────────────────────────────
+
+  /**
+   * Deletes user account via DELETE /api/users/:id.
+   */
+  deleteAccount(userId: string): Observable<any> {
+    return this.http.delete<any>(`${this.API_URL}/users/${userId}`).pipe(
+      tap(() => this.clearSession()), // Automatically log out on successful delete
+      catchError(err => {
+        const message = err.error?.message || 'Failed to delete account.';
+        return throwError(() => new Error(message));
+      })
+    );
+  }
 
   /**
    * Fetches all registered users from GET /api/users.
