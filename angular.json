@@ -26,7 +26,12 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "src/.well-known",
+                "output": "/.well-known"
+              }
             ],
             "styles": [
               "src/styles.scss"
