@@ -6,6 +6,10 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  if (state.url.includes('.well-known')) {
+    return true;
+  }
+
   if (authService.isAuthenticated()) {
     return true;
   }
