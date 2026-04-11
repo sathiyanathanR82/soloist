@@ -13,7 +13,7 @@
 
     @if (!isLoading && errorMessage) {
     <div class="error-state">
-      <p>{{ errorMessage }}</p>
+      <p>- - - {{ errorMessage }} - - -</p>
     </div>
     }
 
@@ -32,7 +32,7 @@
         <div class="avatar">{{ getInitials(user) }}</div>
         }
         <div class="info">
-          <h3>{{ user.firstName || user.lastName }}</h3>
+          <h3>{{ capitalizeFirstLetter(user.firstName) || capitalizeFirstLetter(user.lastName) }}</h3>
           <span class="distance">{{ formatDistance(user.distance) }}</span>
         </div>
       </div>
@@ -53,4 +53,42 @@
     </div>
     }
   </div>
+
+  <!-- Invite Popup Modal -->
+  @if (showInvitePopup && selectedTargetUser) {
+  <div class="modal-overlay" (click)="closeInvitePopup()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Send Invitation to {{ capitalizeFirstLetter(selectedTargetUser.firstName) }}</h2>
+        <button type="button" class="close-btn" (click)="closeInvitePopup()">✕</button>
+      </div>
+
+      <form [formGroup]="inviteForm" (ngSubmit)="sendInvite()" class="invite-form">
+        <div class="form-group">
+          <label for="message">Invitation Message</label>
+          <textarea id="message" formControlName="message" class="form-input" placeholder="Write a brief message (min 2, max 500 characters)" rows="4"></textarea>
+
+          @if (inviteForm.get('message')?.touched && inviteForm.get('message')?.hasError('minlength')) {
+          <small class="error">Message must be at least 2 characters</small>
+          }
+          @if (inviteForm.get('message')?.hasError('maxlength')) {
+          <small class="error">Message cannot exceed 500 characters</small>
+          }
+
+          <div class="char-count">
+            {{ inviteForm.get('message')?.value?.length || 0 }} / 500
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeInvitePopup()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!inviteForm.valid || isSubmittingInvite">
+            @if (!isSubmittingInvite) { <span>Send Invitation</span> }
+            @if (isSubmittingInvite) { <span>Sending...</span> }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
 </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { NetworkService } from '../../services/network.service';
 import { User } from '../../models/user.model';
@@ -14,7 +14,7 @@ import { interval, Subscription, startWith, switchMap } from 'rxjs';
 @Component({
   selector: 'app-home',
   standalone: true,
-imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule, ReactiveFormsModule],
 
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
@@ -33,6 +33,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   showInvitePopup = false;
   selectedTargetUser: (User & { distance?: number }) | null = null;
   inviteForm!: FormGroup;
+  isSubmittingInvite = false;
 
 
 constructor(
@@ -53,7 +54,7 @@ constructor(
     }
 
     this.inviteForm = this.fb.group({
-      message: ['', Validators.maxLength(500)]
+      message: ['', [Validators.minLength(2), Validators.maxLength(500)]]
     });
 
     this.getLocation();
@@ -103,8 +104,6 @@ constructor(
 
     if (this.isConnected(user)) {
       if (this.isRemovalPending(user)) {
-        // Option to cancel the removal request if supported (not explicitly requested, but good UX)
-        // For now, just show a message.
         alert('A removal request has already been sent and is awaiting approval.');
         return;
       }
@@ -121,11 +120,41 @@ constructor(
         error: (err) => console.error('Failed to cancel request:', err)
       });
     } else {
-      this.networkService.sendRequest(targetId).subscribe({
-        next: () => this.refreshData(),
-        error: (err) => console.error('Failed to send request:', err)
-      });
+      // Show popup to ask for invite message
+      this.selectedTargetUser = user;
+      this.inviteForm.reset();
+      this.showInvitePopup = true;
     }
+  }
+
+  sendInvite(): void {
+    if (!this.inviteForm.valid || !this.selectedTargetUser) {
+      return;
+    }
+
+    const message = this.inviteForm.value.message.trim();
+    const targetId = this.selectedTargetUser.uid;
+
+    if (!targetId) return;
+
+    this.isSubmittingInvite = true;
+    this.networkService.sendRequest(targetId, message).subscribe({
+      next: () => {
+        this.closeInvitePopup();
+        this.refreshData();
+      },
+      error: (err) => {
+        console.error('Failed to send request:', err);
+        this.isSubmittingInvite = false;
+      }
+    });
+  }
+
+  closeInvitePopup(): void {
+    this.showInvitePopup = false;
+    this.selectedTargetUser = null;
+    this.inviteForm.reset();
+    this.isSubmittingInvite = false;
   }
 
   // Request Action Handlers
@@ -326,5 +355,10 @@ constructor(
 
   logout(): void {
     this.authService.logout();
+  }
+
+  public capitalizeFirstLetter(string: string | undefined): string {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 }

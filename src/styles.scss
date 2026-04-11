@@ -137,3 +137,26 @@ button:disabled:hover {
 button.nobtnhovermove:hover {
   transform: translateY(0px);
 }
+
+/* Material Tooltip Global Styles */
+::ng-deep .mat-mdc-tooltip {
+  font-size: 12px !important;
+  background-color: white !important;
+  color: #1a1a1a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+::ng-deep .mat-tooltip-handset {
+  font-size: 12px !important;
+}
+
+::ng-deep .mdc-tooltip {
+  font-size: 12px !important;
+}
+
+::ng-deep .mdc-tooltip__surface {
+  background-color: white !important;
+  color: #1a1a1a !important;
+  font-size: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}

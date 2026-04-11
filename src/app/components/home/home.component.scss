@@ -29,10 +29,17 @@
 
   .user-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
+
+    .error-state{
+      text-align: center;
+      padding: 60px;
+      color: #f87171;
+      grid-column: 1 / -1;
+    }
   }
 
   .user-card {
@@ -40,13 +47,13 @@
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    padding: 24px;
+    padding: 18px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 
     &:hover {
-      transform: translateY(-10px);
+      transform: translateY(-4px);
       background: rgba(30, 41, 59, 0.8);
       border-color: rgba(129, 140, 248, 0.4);
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -60,7 +67,7 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
 
       .avatar {
         width: 60px;
@@ -75,6 +82,8 @@
         color: white;
         transition: transform 0.3s ease;
         object-fit: cover;
+        border:#fff solid 2px;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
       }
 
       .info {
@@ -100,7 +109,7 @@
       line-clamp: 3;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
     }
 
     .meta {
@@ -196,6 +205,173 @@
   from {
     opacity: 0;
     transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeInDown 0.3s ease-out;
+
+  .modal-content {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease-out;
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #f8fafc;
+        margin: 0;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #94a3b8;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          color: #f8fafc;
+        }
+      }
+    }
+
+    .invite-form {
+      .form-group {
+        margin-bottom: 20px;
+
+        label {
+          display: block;
+          margin-bottom: 8px;
+          color: #f8fafc;
+          font-weight: 500;
+          font-size: 0.95rem;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 12px 16px;
+          background: rgba(30, 41, 59, 0.5);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          color: #f8fafc;
+          font-family: inherit;
+          font-size: 0.95rem;
+          resize: vertical;
+          transition: all 0.3s ease;
+
+          &:focus {
+            outline: none;
+            border-color: rgba(129, 140, 248, 0.5);
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 12px rgba(129, 140, 248, 0.2);
+          }
+
+          &::placeholder {
+            color: #64748b;
+          }
+        }
+
+        .error {
+          display: block;
+          color: #f87171;
+          font-size: 0.85rem;
+          margin-top: 6px;
+          font-weight: 500;
+        }
+
+        .char-count {
+          display: block;
+          color: #94a3b8;
+          font-size: 0.85rem;
+          margin-top: 6px;
+          text-align: right;
+        }
+      }
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+
+      .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.btn-primary {
+          background: linear-gradient(135deg, #818cf8, #6366f1);
+          color: white;
+
+          &:hover:not([disabled]) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(129, 140, 248, 0.3);
+          }
+
+          &[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+
+        &.btn-secondary {
+          background: rgba(255, 255, 255, 0.1);
+          color: #f8fafc;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.15);
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
     opacity: 1;

@@ -45,7 +45,10 @@ export class NetworkComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.myNetwork = res.data.myNetwork;
-          this.pendingRequests = res.data.requests as (User & {inviteMessage: string})[];
+          this.pendingRequests = res.data.requests as (User & { inviteMessage: string })[];
+          
+          console.log(this.pendingRequests);
+          
         }
         this.loading = false;
       },
@@ -95,5 +98,11 @@ export class NetworkComponent implements OnInit {
 
   getInitials(user: User): string {
     return `${user?.firstName?.charAt(0) || ''}${user?.lastName?.charAt(0) || ''}`.toUpperCase();
+  }
+
+
+  public capitalizeFirstLetter(string: string | undefined): string {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 }

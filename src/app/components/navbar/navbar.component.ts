@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { NetworkService } from '../../services/network.service';
 import { CommonModule } from '@angular/common';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import { interval, delay, takeWhile, Subscription, startWith, switchMap } from 'rxjs';
+import { interval, delay, Subscription, startWith, switchMap } from 'rxjs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
@@ -19,7 +19,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isAuthenticated$ = this.authService.isAuthenticated$.pipe(delay(0));
   currentUser$ = this.authService.currentUser$.pipe(delay(0));
   networkRequestsCount$ = this.networkService.networkRequestsCount$;
+  public showMobileMenu = false;
   private pollingSubscription?: Subscription;
+  private routerSubscription?: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -33,17 +35,29 @@ export class NavbarComponent implements OnInit, OnDestroy {
       switchMap(isAuth => {
         if (isAuth) {
           return interval(30000).pipe(
-            startWith(0), // Trigger immediately on login
+            startWith(0),
             switchMap(() => this.networkService.getNetworkInfo())
           );
         }
         return [];
       })
     ).subscribe();
+
+    // Close mobile menu on route change
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.showMobileMenu = false;
+    });
   }
 
   ngOnDestroy(): void {
     this.pollingSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
+  }
+
+  toggleMobileMenu(): void {
+    this.showMobileMenu = !this.showMobileMenu;
   }
 
   goToNetwork(): void {
@@ -58,7 +72,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/messages']);
   }
 
-
   goToHome(): void {
     this.router.navigate(['/home']);
   }
@@ -66,6 +79,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+    this.showMobileMenu = false;
   }
 
   getInitials(user: any): string {
@@ -77,9 +91,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return '';
   }
 
-
   public capitalizeFirstLetter(string: string | undefined): string {
-    if (!string) return "";
+    if (!string) return '';
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 }
+

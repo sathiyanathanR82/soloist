@@ -131,6 +131,23 @@
   font-size: 0.85rem;
 }
 
+.invite-msg {
+  color: #475569;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-left: 3px solid #6366f1;
+  border-radius: 0.5rem;
+  text-align: left;
+  font-style: italic;
+}
+
+.headline span {
+  color: #6366f1;
+  font-weight: 600;
+}
+
 .card-actions {
   display: flex;
   gap: 0.75rem;

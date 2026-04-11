@@ -16,11 +16,14 @@
           <div *ngIf="!user.profilePic" class="avatar-placeholder">{{ getInitials(user) }}</div>
         </div>
         <div class="card-info">
-          <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-<p class="headline">{{ user.headline || 'Member since ' + (user.createdAt | date) }}</p>
-@if (user.inviteMessage) {
-<p class="invite-msg">{{ user.inviteMessage }}</p>
-}
+          <h3>{{ capitalizeFirstLetter(user.firstName) }} {{ capitalizeFirstLetter(user.lastName) }}</h3>
+          @if (user.headline) {
+          <p class="headline">{{ capitalizeFirstLetter(user.headline) }}</p>
+          }
+          <p class="headline">{{ 'Member since '}} <span>{{ (user.createdAt | date) }}</span></p>
+          @if (user.inviteMessage) {
+            <p class="invite-msg">{{ user.inviteMessage }}</p>
+          }
 
         </div>
         <div class="card-actions">

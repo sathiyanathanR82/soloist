@@ -4,12 +4,12 @@
       <a href="/home">
         <img src="assets/images/soloist_h.png" alt="Soloist" class="nav-logo">
       </a>
-      <!-- <h1>Soloist</h1> -->
     </div>
 
     @if (isAuthenticated$ | async) {
     <div class="navbar-menu">
-      <div class="user-menu">
+      <!-- Desktop menu -->
+      <div class="navbar-actions-desktop">
         @if (currentUser$ | async; as user) {
         <div class="navbar-actions">
           <button (click)="goToHome()" class="nav-link-btn nobtnhovermove" title="Home">
@@ -21,8 +21,7 @@
             <mat-icon>people</mat-icon>
             <div [matBadge]="(networkRequestsCount$ | async) || 0" matBadgeColor="warn" matBadgeOverlap="false"
               class="demo-section" [matBadgeHidden]="((networkRequestsCount$ | async) || 0) === 0">
-              <span>
-                Network</span>
+              <span>Network</span>
             </div>
           </button>
 
@@ -31,13 +30,13 @@
             <span>Messages</span>
           </button>
 
-          <button (click)="goToProfile()" class="nav-link-btn nobtnhovermove" title="My Profile">
-
-            <mat-icon>account_circle</mat-icon>
-            <span>Profile</span>
-          </button>
           <div class="nav-divider"></div>
           <div class="user-details">
+            <div class="user-info">
+              <div class="welcome-text"><i>Welcome!</i> <span class="user-name">{{ capitalizeFirstLetter(user?.firstName) }}</span></div>
+              <div class="last-login">{{ user?.lastLogin | date:'short' }}</div>
+            </div>
+            <a href="/profile" class="profile-link">
             <div class="profile-avatar-small">
               @if(user?.profilePic){
               <img [src]="user?.profilePic" alt="Profile" class="avatar-img-small">
@@ -45,12 +44,7 @@
               <span class="avatar-initials-small">{{ getInitials(user) }}</span>
               }
             </div>
-            <div class="user-info">
-              <div class="welcome-text"><i>Welcome!</i> <span class="user-name">{{
-                  capitalizeFirstLetter(user?.firstName) }}</span></div>
-              <div class="last-login">{{ user?.lastLogin | date:'short' }}</div>
-            </div>
-
+            </a>
           </div>
           <div class="nav-divider"></div>
 
@@ -60,7 +54,65 @@
         </div>
         }
       </div>
-    </div>
+
+      <!-- Mobile hamburger button -->
+      <button class="navbar-hamburger" (click)="toggleMobileMenu()" [attr.aria-expanded]="showMobileMenu" title="Menu"
+       tabindex="-1">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <!-- Hamburger dropdown -->
+      @if (showMobileMenu) {
+      <div class="hamburger-dropdown" [ngClass]="{'open': showMobileMenu}">
+           @if (currentUser$ | async; as user) {
+            <div class="user-detail">
+              <div class="mobile-user-details">
+            <a href="/profile" class="profile-link-mobile">
+              <div class="profile-avatar-medium">
+                @if(user?.profilePic){
+                <img [src]="user?.profilePic" alt="Profile" class="avatar-img-medium">
+                } @else {
+                <span class="avatar-initials-medium">{{ getInitials(user) }}</span>
+                }
+              </div>
+            </a>
+            <div class="user-info">
+              <div class="welcome-text"><i>Welcome!</i> <span class="user-name">&nbsp;&nbsp;{{ capitalizeFirstLetter(user?.firstName) }}</span></div>
+              <div class="last-login-mobile">{{ user?.lastLogin | date:'short' }}</div>
+            </div>            
+          </div>
+          </div>
+
+           <div class="mobile-navbar-actions">
+          <button (click)="goToHome(); toggleMobileMenu()" class="nav-link-btn-mobile" title="Home">
+            <mat-icon>home</mat-icon>
+            <span>Home</span>
+          </button>
+
+          <button (click)="goToNetwork(); toggleMobileMenu()" class="nav-link-btn-mobile" title="Network">
+            <mat-icon>people</mat-icon>
+            <span>Network</span>
+            @if ((networkRequestsCount$ | async) || 0 > 0) {
+            <div [matBadge]="(networkRequestsCount$ | async) || 0" matBadgeColor="warn" matBadgeOverlap="false" [matBadgeHidden]="((networkRequestsCount$ | async) || 0) === 0"></div>
+            }
+          </button>
+
+          <button (click)="goToMessages(); toggleMobileMenu()" class="nav-link-btn-mobile" title="Messages">
+            <mat-icon>message</mat-icon>
+            <span>Messages</span>
+          </button>
+
+
+          <button (click)="logout(); toggleMobileMenu()" class="nav-link-btn-mobile logout-mobile" title="Logout">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+          </div>
+        }
+        </div>
+      }
+      </div>
     }
-  </div>
+    </div>
 </nav>
+

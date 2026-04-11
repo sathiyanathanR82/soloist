@@ -4,6 +4,36 @@ import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User, AuthResponse } from '../models/user.model';
 
+export interface NetworkRequest extends User {
+  inviteMessage?: string;
+  createdAt?: Date;
+}
+
+export interface NetworkInfoResponse {
+  success: boolean;
+  data: {
+    myNetwork: User[];
+    requests: NetworkRequest[];
+    removalRequests: NetworkRequest[];
+  };
+}
+
+export interface Message {
+  from: string;
+  to: string;
+  text: string;
+  timestamp: Date;
+  type?: 'invite' | 'message';
+}
+
+export interface MessageResponse {
+  success: boolean;
+  data: {
+    message?: Message;
+    messages?: Message[];
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -15,8 +45,8 @@ export class NetworkService {
 
   constructor(private http: HttpClient) { }
 
-  getNetworkInfo(): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/network/info`).pipe(
+  getNetworkInfo(): Observable<NetworkInfoResponse> {
+    return this.http.get<NetworkInfoResponse>(`${this.API_URL}/network/info`).pipe(
       tap(response => {
         if (response.success) {
           const pendingCount = (response.data.requests?.length || 0) + (response.data.removalRequests?.length || 0);
@@ -27,8 +57,9 @@ export class NetworkService {
     );
   }
 
-  sendRequest(targetId: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/network/request/${targetId}`, {});
+  sendRequest(targetId: string, message?: string): Observable<any> {
+    const payload = message ? { message } : {};
+    return this.http.post<any>(`${this.API_URL}/network/request/${targetId}`, payload);
   }
 
   approveRequest(requesterId: string): Observable<any> {
@@ -85,5 +116,31 @@ export class NetworkService {
 
   updateRequestCount(count: number) {
     this.networkRequestsSubject.next(count);
+  }
+
+  sendMessage(recipientId: string, messageText: string): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.API_URL}/messages/send`, {
+      recipientId,
+      text: messageText
+    }).pipe(
+      tap(response => {
+        if (response.success) {
+          console.log('Message sent successfully');
+        }
+      }),
+      catchError(err => {
+        console.error('Error sending message:', err);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  getMessages(withUserId: string): Observable<MessageResponse> {
+    return this.http.get<MessageResponse>(`${this.API_URL}/messages/${withUserId}`).pipe(
+      catchError(err => {
+        console.error('Error fetching messages:', err);
+        return throwError(() => err);
+      })
+    );
   }
 }
