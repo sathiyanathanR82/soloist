@@ -1,0 +1,13 @@
+<div class="invite-overlay" *ngIf="showInvitePopup" (click)="closeInvitePopup()">
+  <div class="invite-popup" (click)="$event.stopPropagation()">
+    <h3>Add {{ selectedTargetUser?.firstName }} {{ selectedTargetUser?.lastName }} to Network</h3>
+    <form [formGroup]="inviteForm" (ngSubmit)="sendInvite()">
+      <textarea formControlName="message" rows="5" class="invite-textarea" placeholder="Send a personal message with your connection request (optional)..."></textarea>
+      <div class="popup-buttons">
+        <button type="button" class="btn-cancel" (click)="closeInvitePopup()">Cancel</button>
+        <button type="submit" class="btn-send" [disabled]="inviteForm.invalid">Send Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+

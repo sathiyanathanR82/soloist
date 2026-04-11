@@ -8,6 +8,8 @@ import { PrivacyPolicyComponent } from './components/privacy-policy/privacy-poli
 import { UserDataDeletionComponent } from './components/user-data-deletion/user-data-deletion.component';
 import { NetworkComponent } from './components/network/network.component';
 import { TermsModalComponent } from './components/terms-modal/terms-modal.component';
+import { MessagesComponent } from './components/messages/messages.component';
+
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -20,7 +22,9 @@ export const routes: Routes = [
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
   { path: 'terms-of-service', component: TermsModalComponent },
   { path: 'user-data-deletion', component: UserDataDeletionComponent },
+  { path: 'messages', component: MessagesComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'login' }
+
 ];
 
 @NgModule({

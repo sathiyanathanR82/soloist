@@ -12,12 +12,16 @@
     <div class="user-grid">
       <div class="user-card" *ngFor="let user of pendingRequests" @fadeInUp>
         <div class="card-avatar">
-          <img *ngIf="user.profilePic" [src]="user.profilePic" [alt]="user.firstName">
+          <img *ngIf="user.profilePic" [src]="user.profilePic" [alt]="user.firstName"/>
           <div *ngIf="!user.profilePic" class="avatar-placeholder">{{ getInitials(user) }}</div>
         </div>
         <div class="card-info">
           <h3>{{ user.firstName }} {{ user.lastName }}</h3>
-          <p class="headline">{{ user.headline || 'Member since ' + (user.createdAt | date) }}</p>
+<p class="headline">{{ user.headline || 'Member since ' + (user.createdAt | date) }}</p>
+@if (user.inviteMessage) {
+<p class="invite-msg">{{ user.inviteMessage }}</p>
+}
+
         </div>
         <div class="card-actions">
           <button class="btn-approve" (click)="approveRequest(user.uid || user.id!)">Approve</button>

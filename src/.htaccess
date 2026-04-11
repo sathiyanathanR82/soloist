@@ -1,0 +1,19 @@
+RewriteEngine On
+
+# Force correct Content-Type for JSON files
+AddType application/json .json
+
+# Ensure .well-known JSON is served with correct headers
+<IfModule mod_headers.c>
+  <FilesMatch "microsoft-identity-association\.json$">
+    Header set Content-Type "application/json"
+  </FilesMatch>
+</IfModule>
+
+# If the request is for a real file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Otherwise, redirect all other requests to index.html (SPA routing)
+RewriteRule ^ /index.html [L]

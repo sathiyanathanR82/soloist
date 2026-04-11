@@ -28,6 +28,11 @@
               "src/favicon.ico",
               "src/assets",
               {
+                "glob": ".htaccess",
+                "input": "src",
+                "output": "/"
+              },
+              {
                 "glob": "**/*",
                 "input": "src/.well-known",
                 "output": "/.well-known"

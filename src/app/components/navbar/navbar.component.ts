@@ -54,6 +54,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/profile']);
   }
 
+  goToMessages(): void {
+    this.router.navigate(['/messages']);
+  }
+
+
   goToHome(): void {
     this.router.navigate(['/home']);
   }

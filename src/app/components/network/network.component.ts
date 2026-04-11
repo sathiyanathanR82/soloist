@@ -22,7 +22,8 @@ import { animate, style, transition, trigger } from '@angular/animations';
 })
 export class NetworkComponent implements OnInit {
   myNetwork: User[] = [];
-  pendingRequests: User[] = [];
+  pendingRequests: (User & {inviteMessage: string})[] = [];
+
   suggestions: User[] = [];
   loading = true;
   currentUser: User | null = null;
@@ -44,13 +45,14 @@ export class NetworkComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.myNetwork = res.data.myNetwork;
-          this.pendingRequests = res.data.requests;
+          this.pendingRequests = res.data.requests as (User & {inviteMessage: string})[];
         }
         this.loading = false;
       },
       error: () => this.loading = false
     });
   }
+
 
   loadSuggestions(): void {
     this.authService.getAllUsers().subscribe({

@@ -1,6 +1,7 @@
 import { Component, OnInit, NgZone, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { NetworkService } from '../../services/network.service';
 import { User } from '../../models/user.model';
@@ -9,10 +10,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { interval, Subscription, startWith, switchMap } from 'rxjs';
 
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -27,13 +30,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   incomingRemovalRequests: any[] = [];
   private pollSubscription?: Subscription;
 
-  constructor(
+  showInvitePopup = false;
+  selectedTargetUser: (User & { distance?: number }) | null = null;
+  inviteForm!: FormGroup;
+
+
+constructor(
     private authService: AuthService,
     private networkService: NetworkService,
+    private fb: FormBuilder,
     private router: Router,
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef
   ) { }
+
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -42,9 +52,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.inviteForm = this.fb.group({
+      message: ['', Validators.maxLength(500)]
+    });
+
     this.getLocation();
     this.startPolling();
   }
+
 
   ngOnDestroy(): void {
     if (this.pollSubscription) {
@@ -74,12 +89,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   isPending(user: User): boolean {
     const myUid = this.currentUser?.uid || this.currentUser?.id;
-    return !!user.network?.request?.includes(myUid!);
+    return !!user.network?.request?.some((req: any) => req.userId === myUid);
   }
 
   isRemovalPending(user: User): boolean {
     const myUid = this.currentUser?.uid || this.currentUser?.id;
-    return !!user.network?.removalRequest?.includes(myUid!);
+    return !!user.network?.removalRequest?.some((req: any) => req.userId === myUid);
   }
 
   toggleNetwork(user: User): void {

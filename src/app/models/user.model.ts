@@ -28,10 +28,21 @@ export interface User {
   longitude?: number;
   network?: {
     myNetwork: string[];
-    request: string[];
+    request: {userId: string, inviteMessage?: string}[];
     block: string[];
     removalRequest: string[];
+    messages?: {
+      withUserId: string;
+      messages: Array<{
+        from: string;
+        to: string;
+        text: string;
+        timestamp: Date;
+        type?: 'invite' | 'message';
+      }>;
+    }[];
   };
+
   lastLogin?: Date | string;
   isOnline?: boolean;
   profileVisibility?: 'All users' | 'Only my network' | 'Only me';
