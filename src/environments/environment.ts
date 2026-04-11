@@ -6,7 +6,7 @@
 // Replace with your environment configuration
 export const environment = {
   production: false,
-  // apiUrl: 'http://localhost:1000010000/api',
+  // apiUrl: 'http://localhost:10000/api',
   apiUrl: 'https://soloist-backend-pxhl.onrender.com/api',
   // socialProviders: {
   //   facebook: {

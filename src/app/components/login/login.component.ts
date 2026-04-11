@@ -12,7 +12,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-  isLoading = false;
+  loadingProvider: string | null = null;
   errorMessage = '';
 
   socialProviders = [
@@ -57,7 +57,7 @@ export class LoginComponent implements OnInit {
    * redirects back to /profile?token=<jwt>.
    */
   loginWithSocial(provider: string): void {
-    this.isLoading = true;
+    this.loadingProvider = provider;
     this.errorMessage = '';
     // No return — browser navigates away entirely
     this.authService.loginWithSocial(provider);
